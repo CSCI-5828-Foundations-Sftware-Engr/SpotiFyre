@@ -5,7 +5,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:algo123@postgres-db-postgresql/spotifyre_db'
+host = os.getenv('PQ_HOST', "postgres-db-postgresql")
+port = os.getenv('PQ_PORT', "5432")
+user = os.getenv('PQ_USER', "root")
+passWd = os.getenv('PQ_PASS', "algo123")
+pqdb = os.getenv('PQ_DB', "spotifyre_db")
+
+
+url = f'postgresql://{user}:{passWd}@{host}:{port}/{pqdb}'
+app.config['SQLALCHEMY_DATABASE_URI'] = url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
