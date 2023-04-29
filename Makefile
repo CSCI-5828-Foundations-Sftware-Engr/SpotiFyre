@@ -2,4 +2,4 @@ VERSION=v1
 
 
 helm:
-	helm install postgresql infra/postgresql
+	helm install postgres-db infra/postgresql
