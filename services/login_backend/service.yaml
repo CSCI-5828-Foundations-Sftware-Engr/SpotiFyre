@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-app-service
+  name: login-backend-service
 spec:
   selector:
-    app: flask-app
+    app: login-backend
   ports:
     - protocol: TCP
       port: 80

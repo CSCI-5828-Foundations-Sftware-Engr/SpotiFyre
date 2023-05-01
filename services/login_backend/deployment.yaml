@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-app
+  name: login-backend
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: flask-app
+      app: login-backend
   template:
     metadata:
       labels:
-        app: flask-app
+        app: login-backend
     spec:
       containers:
-        - name: flask-app
-          image: login-ui:latest
+        - name: login-backend
+          image: login-backend:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 5000

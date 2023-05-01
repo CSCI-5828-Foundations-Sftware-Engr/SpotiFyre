@@ -1,7 +1,7 @@
  steps:
  # Build the container image
  - name: 'gcr.io/cloud-builders/docker'
-   args: ['build', '-t', 'gcr.io/polished-time-381400/web-ui-app:$COMMIT_SHA', '.']
+   args: ['build', '-t', 'gcr.io/polished-time-381400/web-ui-app:$COMMIT_SHA', './web_ui_app']
  # Push the container image to Container Registry
  - name: 'gcr.io/cloud-builders/docker'
    args: ['push', 'gcr.io/polished-time-381400/web-ui-app:$COMMIT_SHA']

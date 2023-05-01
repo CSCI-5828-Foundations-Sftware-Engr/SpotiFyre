@@ -1,7 +1,7 @@
 FROM node:16.15.1 as build
 WORKDIR /web_ui_app
 
-COPY package*.json .
+COPY package*.json ./
 RUN npm install
 COPY . .
 
