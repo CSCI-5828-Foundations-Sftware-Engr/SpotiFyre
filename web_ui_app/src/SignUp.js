@@ -2,14 +2,30 @@ import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-function LoginForm(props) {
+function SignUp(props) {
     const [errorMessages, setErrorMessages] = useState({});
 
-    const validateUser = async (email, password) => {
-        await fetch('/login', {
+    // const database = [
+    //     {
+    //         username: "user1",
+    //         password: "pass1"
+    //     },
+    //     {
+    //         username: "user2",
+    //         password: "pass2"
+    //     }
+    //     ];
+
+    // const errors = {
+    //     uname: "invalid username",
+    //     pass: "invalid password"
+    // };
+
+    const addUser = async (name, email, password) => {
+        await fetch('/signup', {
            method: 'POST',
            mode: 'no-cors',
-           body: "email="+email+"&password="+password,
+           body: "name="+name+"&email="+email+"&password="+password,
            headers: {
               'Content-type': "application/x-www-form-urlencoded",
            },
@@ -18,48 +34,52 @@ function LoginForm(props) {
            .then((data) => {
                 console.log(data)
                 if (!data.success) {
-                    alert(data.message)
+                    console.log(data.message)
                 }
                 if (data.success === true) {
-                    props.loginStatus(true)
+                    props.registrationStatus(true)
                 }
            })
            .catch((err) => {
               console.log(err.message);
            });
     };
-
+    
     const handleSubmit = (e) => {
         e.preventDefault();
-        var {uname, pass} = document.forms[0]
-        console.log(uname.value, pass.value)
-        validateUser(uname.value, pass.value);
-    };   
+        var {name, uname, pass} = document.forms[0]
+        console.log(name.value, uname.value, pass.value)
+        addUser(name.value, uname.value, pass.value);
+    };    
 
-    const handleLogin = () => props.registrationStatus(false);
+    const handleLogin = () => props.registrationStatus(true);
 
   return (
     <div>
-        <h1>Log in!</h1>
+        <h1>Sign up!</h1>
         <Form onSubmit={handleSubmit} style={{ width: 500, height: 500, marginLeft: "auto", marginRight: "auto", marginTop: 100}}>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Name</Form.Label>
+                <Form.Control type="text" placeholder="Name" name="name"/>
+            </Form.Group>
+
             <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Username</Form.Label>
                 <Form.Control type="text" placeholder="Username" name="uname"/>
-                {/* {renderErrorMessage("uname")} */}
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>Password</Form.Label>
                 <Form.Control type="password" placeholder="Password" name="pass"/>
-                {/* {renderErrorMessage("pass")} */}
             </Form.Group>
             <Button variant="primary" type="submit" >
                 Submit
             </Button>
         </Form>
-        If you don't have an account, <Button variant="primary" type="button" onClick={handleLogin}>Sign up!</Button>
+        <h3>If you already have an account, </h3><Button variant="primary" type="button" onClick={handleLogin}>Login</Button>
     </div>
+    
   );
 }
 
-export default LoginForm;
+export default SignUp;
