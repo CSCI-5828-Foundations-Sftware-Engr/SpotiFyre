@@ -114,6 +114,24 @@ def create_group():
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
 
+@main.route('/list_groups')
+def list_groups():
+    groups = Group.query.all()
+    group_list = []
+    for group in groups:
+        group_data = {
+            'id': group.id,
+            'name': group.name,
+            'description': group.description,
+            'owner': {
+                'id': group.owner.id,
+                'username': group.owner.username
+            }
+        }
+        group_list.append(group_data)
+
+    return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
+
 @main.route('/process_request', methods=['POST'])
 @login_required
 def process_request():
