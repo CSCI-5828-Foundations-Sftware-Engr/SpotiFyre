@@ -5,6 +5,7 @@ import Navbar from 'react-bootstrap/Navbar';
 function NavBar(props) {
     const changeToLogout = () => {
         props.loginStatus(false)
+        localStorage.clear()
     };
     return (
         <Navbar bg="dark" variant="dark">

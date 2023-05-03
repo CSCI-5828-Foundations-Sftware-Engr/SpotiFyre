@@ -22,6 +22,7 @@ function LoginForm(props) {
                 }
                 if (data.success === true) {
                     props.loginStatus(true)
+                    localStorage.setItem('user', data.message)
                 }
            })
            .catch((err) => {

@@ -18,6 +18,13 @@ function App() {
   //     .then((message) => console.log(message.message))
   //     .catch((e) => console.log(e));
   // }, []);
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      setIsSubmitted(true);
+    }
+  }, []);
   
   return (
     <div>
