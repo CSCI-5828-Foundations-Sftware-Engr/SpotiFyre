@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, Blueprint, flash
+from flask import Flask, render_template, request, redirect, session, Blueprint, flash, jsonify
 from flask_login import login_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,6 +20,7 @@ def profile():
     return render_template('profile.html', user=user)
 
 @main.route('/invite_members', methods=['POST'])
+@login_required
 def invite_members():
     if request.method == 'POST':
         group_id = request.form.get('group_id')
@@ -32,19 +33,20 @@ def invite_members():
 
             # Check if the invited member is already part of the group
             if invited_user in group.members:
+                response = {'success': False, 'message': 'Member is already part of the group'}
                 flash('Member is already part of the group', 'info')
             else:
                 # Check if the invitation already exists
                 invitation = Invitation.query.filter_by(group_id=group_id, email=email).first()
                 if invitation:
-                    flash('Invitation already sent', 'info')
+                    response = {'success': False, 'message': 'Invitation already sent'}
                 else:
                     # Create a new invitation
                     new_invitation = Invitation(user_id=invited_user.id, group_id=group_id)
                     db.session.add(new_invitation)
                     db.session.commit()
 
-                    flash('Invitation sent successfully', 'success')
+                    response = {'success': True, 'message': 'Invitation sent successfully'}
 
                     # Update the invited member's profile with the invitation
                     invited_user.invitations_received.append(new_invitation)
@@ -52,11 +54,13 @@ def invite_members():
                     db.session.commit()
 
         else:
-            flash('Member does not exist', 'error')
-
-        return redirect('/list_groups')  # Redirect to the list of groups page
+            response = {'success': False, 'message': 'Member does not exist'}
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 
 @main.route('/request_membership', methods=['POST'])
+@login_required
 def request_membership():
     if request.method == 'POST':
         group_id = request.form.get('group_id')
@@ -67,32 +71,33 @@ def request_membership():
 
         # Check if the user is already a member of the group
         if user in group.members:
-            flash('You are already a member of the group', 'info')
+            response = {'success': False, 'message': 'Member is already part of the group'}
         else:
             # Check if a membership request already exists
             membership_request = MembershipRequest.query.filter_by(group_id=group_id, user_id=user_id).first()
             if membership_request:
-                flash('Membership request already sent', 'info')
+                response = {'success': False, 'message': 'Membership request already sent'}
             else:
                 # Create a new membership request
                 new_membership_request = MembershipRequest(user_id=user_id, group_id=group_id)
                 db.session.add(new_membership_request)
                 db.session.commit()
-
-                flash('Membership request sent successfully', 'success')
+                response = {'success': True, 'message': 'Membership request sent successfully'}
 
                 # Update the group's profile with the invitation
                 # invited_user.invitations_received.append(new_invitation)
                 group.requests_received.append(new_membership_request)
                 db.session.commit()
-
-        return redirect('/list_groups')  # Redirect to the list of groups page
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 @main.route('/create_group', methods=['GET', 'POST'])
+@login_required
 def create_group():
     if request.method == 'POST':
         name = request.form['group_name']
         description = request.form['group_description']
-        owner = 'current_user'  # Replace with the logic to get the current user ID
+        owner = request.form['user_id']
 
         # Create a new group instance
         new_group = Group(name=name, description=description, owner=owner)
@@ -101,17 +106,16 @@ def create_group():
             # Add the new group to the database
             db.session.add(new_group)
             db.session.commit()
-
-            flash('Group created successfully', 'success')
-            return redirect('/list_groups')  # Redirect to the list of groups page
+            response = {'success': True, 'message': 'Group created successfully.', 'data' : new_group.id}
         except:
             db.session.rollback()
-            flash('Error creating group', 'error')
-            return redirect('/create_group')  # Redirect back to the create group page
-
-    return render_template('create_group.html')
+            response = {'success': False, 'message': 'Error creating group.'}
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 
 @main.route('/process_request', methods=['POST'])
+@login_required
 def process_request():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
@@ -122,22 +126,24 @@ def process_request():
         if membership_request:
             if action == 'accept':
                 membership_request.status = 'accepted'
-                flash('Membership request accepted', 'success')
+                response = {'success': True, 'message': 'Membership request accepted'}
             elif action == 'reject':
                 membership_request.status = 'rejected'
-                flash('Membership request rejected', 'success')
+                response = {'success': True, 'message': 'Membership request rejected'}
             else:
-                flash('Invalid action', 'error')
+                response = {'success': False, 'message': 'Invalid action'}
 
             db.session.commit()
 
             # Delete the membership request
             db.session.delete(membership_request)
             db.session.commit()
-
-        return redirect('/list_groups')  # Redirect to the list of groups page
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 
 @main.route('/process_invitation', methods=['POST'])
+@login_required
 def process_invitation():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
@@ -148,17 +154,18 @@ def process_invitation():
         if invitation:
             if action == 'accept':
                 invitation.status = 'accepted'
-                flash('Invitation accepted', 'success')
+                response = {'success': True, 'message': 'Invitation accepted'}
             elif action == 'reject':
                 invitation.status = 'rejected'
-                flash('Invitation rejected', 'success')
+                response = {'success': True, 'message': 'Invitation rejected'}
             else:
-                flash('Invalid action', 'error')
+                response = {'success': False, 'message': 'Invalid action'}
 
             db.session.commit()
 
             # Delete the invitation
             db.session.delete(invitation)
             db.session.commit()
-
-        return redirect('/list_groups')  # Redirect to the list of groups page
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
