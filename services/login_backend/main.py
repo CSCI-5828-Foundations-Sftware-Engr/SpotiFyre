@@ -64,7 +64,7 @@ def invite_members():
 def request_membership():
     if request.method == 'POST':
         group_id = request.form.get('group_id')
-        user_id = request.form.get('user_id')
+        user_id = session.get('user_id')
 
         group = Group.query.get(group_id)
         user = User.query.get(user_id)
@@ -97,7 +97,7 @@ def create_group():
     if request.method == 'POST':
         name = request.form['group_name']
         description = request.form['group_description']
-        owner = request.form['user_id']
+        owner = session.get('user_id')
 
         # Create a new group instance
         new_group = Group(name=name, description=description, owner=owner)
@@ -118,7 +118,7 @@ def create_group():
 @login_required
 def process_request():
     if request.method == 'POST':
-        user_id = request.form.get('user_id')
+        user_id = session.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
 
@@ -146,7 +146,7 @@ def process_request():
 @login_required
 def process_invitation():
     if request.method == 'POST':
-        user_id = request.form.get('user_id')
+        user_id = session.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
 
