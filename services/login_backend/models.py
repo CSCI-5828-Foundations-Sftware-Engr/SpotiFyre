@@ -22,7 +22,7 @@ class Group(UserMixin, db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     # Define the relationship to the User model
-    owner = relationship('Users', backref='groups')
+    owner = relationship('User', backref='groups')
 
     #invitations_sent = db.relationship('Invitation', backref='group', lazy=True)
     requests_received=  db.relationship('MembershipRequest', backref='user', lazy=True)
