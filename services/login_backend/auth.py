@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from . import db
@@ -10,6 +10,10 @@ auth = Blueprint('auth', __name__)
 @auth.route('/')
 def home():
     return render_template('home.html')
+
+@auth.route('/test', methods=['GET', 'POST'])
+def root():
+    return jsonify({'message': 'Welcome to login service!'}), 200
 
 @auth.route('/login')
 def login():
@@ -26,15 +30,19 @@ def login_post():
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
     if not user or not check_password_hash(user.password, password):
-        flash('Please check your login details and try again.')
+        # flash('Please check your login details and try again.')
+        response = {'success': False, 'message': 'Please check your login details and try again.'}
+        return jsonify(response)
         # if the user doesn't exist or password is wrong, reload the page
-        return redirect(url_for('auth.login'))
+        # return redirect(url_for('auth.login'))
 
     # login code goes here
     login_user(user, remember=False)
     session['user_id'] = user.id
 
-    return redirect(url_for('main.profile'))
+    response = {'success': True, 'message': 'Login Successful'}
+    return jsonify(response)
+    # return redirect(url_for('main.profile'))
 
 
 @auth.route('/signup')
@@ -52,8 +60,11 @@ def signup_post():
     user = User.query.filter_by(email=email).first()
 
     if user:
-        flash('email exists', 'danger')
-        return redirect(url_for('auth.login'))
+        # flash('email exists', 'danger')
+        # return redirect(url_for('auth.login'))
+
+        response = {'success': False, 'message': 'Please check your login details and try again.'}
+        return jsonify(response)
 
     new_user = User(email=email, name=name,
                      password=hashed_password)
@@ -63,10 +74,14 @@ def signup_post():
     except:
         print("failed")
 
-    return redirect(url_for('auth.login'))
+    response = {'success': True, 'message': ' Sign up successful'}
+    return jsonify(response)
+    # return redirect(url_for('auth.login'))
 
 
 @auth.route('/logout')
 def logout():
     session.pop('user_id', None)
-    return redirect('/')
+    response = {'success': True, 'message': 'Logged out successfully'}
+    return jsonify(response)
+    # return redirect('/')
