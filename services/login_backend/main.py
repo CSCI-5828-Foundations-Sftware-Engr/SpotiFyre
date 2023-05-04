@@ -37,7 +37,7 @@ def invite_members():
             #     flash('Member is already part of the group', 'info')
             # else:
                 # Check if the invitation already exists
-            invitation = Invitation.query.filter_by(group_id=group_id, email=email).first()
+            invitation = Invitation.query.filter_by(group_id=group_id, user_id=invited_user.id).first()
             if invitation:
                 response = {'success': False, 'message': 'Invitation already sent'}
             else:
