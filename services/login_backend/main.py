@@ -67,7 +67,6 @@ def request_membership():
         user_id = session.get('user_id')
 
         group = Group.query.get(group_id)
-        user = User.query.get(user_id)
 
         # Check if the user is already a member of the group
         # if user in group.members:
@@ -120,17 +119,22 @@ def get_all_invitations():
 def get_all_membership_requests():
     if request.method == 'POST':
         user_id = session.get('user_id')
+
+        groups = Group.query.filter_by(owner_id=user_id)
         membership_request_list = []
         try:
-            membership_requests = MembershipRequest.query.filter_by(user_id=user_id, status='pending')
-            for membership_request in membership_requests:
-                membership_request_data = {
-                    'id': membership_request.id,
-                    'user_id': membership_request.user_id,
-                    'group_id': membership_request.group_id,
-                    'status': membership_request.status
-                }
-                membership_request_list.append(membership_request_data)
+
+            for group in groups :
+
+                membership_requests = MembershipRequest.query.filter_by(group_id=group.id, status='pending')
+                for membership_request in membership_requests:
+                    membership_request_data = {
+                        'id': membership_request.id,
+                        'user_id': membership_request.user_id,
+                        'group_id': membership_request.group_id,
+                        'status': membership_request.status
+                    }
+                    membership_request_list.append(membership_request_data)
             response = {'success': True, 'message': 'Membership Requests fetched.', 'data': membership_request_list}
         except Exception as e:
             response = {'success': False, 'message': e}
@@ -155,20 +159,22 @@ def create_group():
             # Add the new group to the database
             db.session.add(new_group)
             db.session.commit()
-            response = {'success': True, 'message': 'Group created successfully.', 'data' : new_group.id}
+            message+='Group created successfully.'
         except Exception as e:
             db.session.rollback()
             response = {'success': False, 'message': str(e)}
+            return jsonify(response)
 
         new_member = Member(user_id=user_id,group_id=new_group.id)
         try:
             db.session.add(new_member)
             db.session.commit()
-            response = {'success': True, 'message': 'New member created', 'data' : new_member.id}
+            message+='New member created'
         except Exception as e:
             db.session.rollback()
             response = {'success': False, 'message': str(e)}
-
+            return jsonify(response)
+        response = {'success': True, 'message': message, 'data' : new_group.id}
     else:
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
