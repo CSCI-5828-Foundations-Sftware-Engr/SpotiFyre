@@ -30,26 +30,26 @@ pl_data = json.dumps(pl_dict)
 
 create_playlist(pl_data)
 
-# subscriber = pubsub_v1.SubscriberClient()
-# subscription_path = subscriber.subscription_path(project_id, subscription_id)
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
-# def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-#     print(f"Received {message.data!r}.")
+def callback(message: pubsub_v1.subscriber.message.Message) -> None:
+    print(f"Received {message.data!r}.")
 
-#     # Test the data coming in.
-#     data = json.loads(message.data)
+     # Test the data coming in.
+    data = json.loads(message.data)
 
-#     if message.attributes:
-#         print("Attributes:")
-#         for key in message.attributes:
-#             value = message.attributes.get(key)
-#             print(f"{key}: {value}")
+    if message.attributes:
+        print("Attributes:")
+        for key in message.attributes:
+            value = message.attributes.get(key)
+            print(f"{key}: {value}")
     
-#     try:
-#         create_playlist(data)
-#         message.ack()
-#     except Exception as e:
-#             print("Failed to create playlist", e)
+    try:
+        create_playlist(data)
+        message.ack()
+    except Exception as e:
+        print("Failed to create playlist", e)
 
 
 # streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
