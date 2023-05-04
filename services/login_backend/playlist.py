@@ -6,12 +6,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import Users, Playlist
 from . import db
 from google.cloud import pubsub_v1
+import os
 
 playlist = Blueprint('main', __name__)
 
 # Configure the Google Cloud project and Pub/Sub topic
-project_id = "your-project-id"
-topic_name = "playlist-parameters"
+project_id = os.getenv('PROJECT', "polished-time-381400")
+topic_name = os.getenv('TOPIC_PLAYLIST', "playlist-parameters")
 
 @playlist.route('/generate_playlist', methods=['GET', 'POST'])
 def create_playlist():
