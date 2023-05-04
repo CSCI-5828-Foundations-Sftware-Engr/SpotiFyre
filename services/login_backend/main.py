@@ -150,7 +150,7 @@ def create_group():
 
         # Create a new group instance
         new_group = Group(name=name, description=description, owner=user)
-        new_member = Member(group_id=new_group.id, user_id=user_id)
+        new_member = Member(user_id=user_id,group_id=new_group.id)
         try:
             # Add the new group to the database
             db.session.add(new_group)
@@ -173,7 +173,7 @@ def list_groups():
         group_list = []
         for group in groups:
             member = Member.query.filter_by(user_id=user_id, group_id=group.id).first()
-            if member is not None :
+            if member  :
                 isMember = True
             else:
                 isMember = False
@@ -235,7 +235,7 @@ def process_membership_request():
         if membership_request:
             if action == 'accept':
                 membership_request.status = 'accepted'
-                if  Member.query.filter_by(user_id=user_id, group_id=group_id) is None :
+                if Member.query.filter_by(user_id=user_id, group_id=group_id) :
                     new_member = Member(user_id=user_id, group_id=group_id)
                 status =  'accepted'
             else:
@@ -275,7 +275,7 @@ def process_invitation():
         if invitation:
             if action == 'accept':
                 invitation.status = 'accepted'
-                if  Member.query.filter_by(user_id=user_id, group_id=group_id) is None :
+                if Member.query.filter_by(user_id=user_id, group_id=group_id) :
                     new_member = Member(user_id=user_id, group_id=group_id)
                 status =  'accepted'
             else:
