@@ -71,7 +71,7 @@ class UserTracks(UserMixin, db.Model):
     track_id = db.Column(db.Integer, db.ForeignKey('tracks.id'), nullable=False)
 
 
-class Playlists(UserMixin, db.Model):
+class Playlist(UserMixin, db.Model):
     __tablename__ = 'playlists'
     id = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)

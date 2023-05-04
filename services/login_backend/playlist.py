@@ -3,12 +3,12 @@ from flask import Flask, render_template, request, redirect, session, Blueprint,
 from flask_login import login_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Users, Playlist
+from .models import User, Playlist
 from . import db
 from google.cloud import pubsub_v1
 import os
 
-playlist = Blueprint('main', __name__)
+playlist = Blueprint('playlist', __name__)
 
 # Configure the Google Cloud project and Pub/Sub topic
 project_id = os.getenv('PROJECT', "polished-time-381400")

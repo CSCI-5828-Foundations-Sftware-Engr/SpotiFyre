@@ -79,4 +79,7 @@ def create_app():
     from .spotify_login import spotify_login as spotify_login_blueprint
     app.register_blueprint(spotify_login_blueprint)
 
+    from.playlist import playlist as playlist_blueprint
+    app.register_blueprint(playlist_blueprint)
+
     return app
