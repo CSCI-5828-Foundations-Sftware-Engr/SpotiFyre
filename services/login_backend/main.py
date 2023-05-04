@@ -167,9 +167,15 @@ def create_group():
 @main.route('/list_groups',methods=['POST'])
 def list_groups():
     if request.method == 'POST':
+        user_id = session.get('user_id')
         groups = Group.query.all()
         group_list = []
         for group in groups:
+            member = Member.query.filter_by(user_id=user_id, group_id=group.id).first()
+            if member is not None :
+                isMember = True
+            else:
+                isMember = False
             group_data = {
                 'id': group.id,
                 'name': group.name,
@@ -178,6 +184,7 @@ def list_groups():
                     'id': group.owner.id,
                     'username': group.owner.name
                 }
+                'isMember': isMember
             }
             group_list.append(group_data)
 
@@ -190,10 +197,10 @@ def list_groups():
 def list_user_groups():
     if request.method == 'POST':
         user_id = session.get('user_id')
-        groups_requested=MembershipRequest.query.filter_by(user_id=user_id, status='accepted')
-        groups_invited=Invitation.query.filter_by(user_id=user_id, status='accepted')
+        member_records = Member.query.filter_by(user_id=user_id)
         group_list = []
-        for group in groups_requested:
+        for member_record in member_records:
+            Group.query.filter_by(group_id=member_recordgroup_id, user_id=user_id).first()
             group_data = {
                 'id': group.id,
                 'name': group.name,
@@ -203,7 +210,7 @@ def list_user_groups():
                     'username': group.owner.name
                 }
             }
-        group_list.append(group_data)
+            group_list.append(group_data)
 
         return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
     else:
