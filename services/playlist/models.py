@@ -1,76 +1,81 @@
-import sqlalchemy as sa
+from . import db
+from flask_login import UserMixin
+
+
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
-
-class User(Base):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String(100))
-    email = sa.Column(sa.String(100), unique=True)
-    password = sa.Column(sa.String(100))
-    cache = sa.Column(sa.String(100), unique=True)
 
-    # invitations_received = relationship('Invitation', backref='user', lazy=True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    cache = db.Column(db.String(100), unique=True, default='default-cache')
 
-class Tracks(Base):
-    __tablename__ = 'tracks'
+    invitations_received = db.relationship('Invitation', backref='user', lazy=True)
+    #requests_sent = db.relationship('MembershipRequest', backref='user', lazy=True)
 
-    track_id = sa.Column(sa.Integer, primary_key=True)
-    track_uri = sa.Column(sa.String(100), nullable=False)
-    track_name = sa.Column(sa.String(255), nullable=False)
-    track_artist = sa.Column(sa.Integer, nullable=False)
-
-class UserTracks(Base):
-    __tablename__ = 'usertracks'
-
-    ut_id = sa.Column(sa.Integer, primary_key=True)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), nullable=False)
-    track_id = sa.Column(sa.Integer, sa.ForeignKey('tracks.id'), nullable=False)
-
-class Group(Base):
+class Group(UserMixin, db.Model):
     __tablename__ = 'groups'
 
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String(100), nullable=False)
-    description = sa.Column(sa.String(255), nullable=False)
-    owner_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     # Define the relationship to the User model
     owner = relationship('User', backref='groups')
 
-    #invitations_sent = relationship('Invitation', backref='group', lazy=True)
-    # requests_received=  relationship('MembershipRequest', backref='user', lazy=True)
+    #invitations_sent = db.relationship('Invitation', backref='group', lazy=True)
+    requests_received=  db.relationship('MembershipRequest', backref='user', lazy=True)
 
 
-class Member(Base):
+class Invitation(UserMixin, db.Model):
+    __tablename__ = 'invitations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    status = db.Column(db.String(10), default='pending')
+
+class MembershipRequest(UserMixin, db.Model):
+    __tablename__ = 'membership_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    status = db.Column(db.String(10), default='pending')
+
+class Member(UserMixin, db.Model):
     __tablename__ = 'members'
 
-    id = sa.Column(sa.Integer, primary_key=True)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), nullable=False)
-    group_id = sa.Column(sa.Integer, sa.ForeignKey('groups.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    
+
+class Tracks(UserMixin, db.Model):
+    __tablename__ = 'tracks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    track_uri = db.Column(db.String(100), nullable=False)
+    track_name = db.Column(db.String(255), nullable=False)
+    track_artist = db.Column(db.Integer, nullable=False)
+
+class UserTracks(UserMixin, db.Model):
+    __tablename__ = 'usertracks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    track_id = db.Column(db.Integer, db.ForeignKey('tracks.id'), nullable=False)
 
 
-# class Invitation(Base):
-#     __tablename__ = 'invitations'
-
-#     id = sa.Column(sa.Integer, primary_key=True)
-#     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), nullable=False)
-#     group_id = sa.Column(sa.Integer, sa.ForeignKey('groups.id'), nullable=False)
-#     status = sa.Column(sa.String(10), default='pending')
-
-
-class Playlist(Base):
+class Playlists(UserMixin, db.Model):
     __tablename__ = 'playlists'
-    id = sa.Column(sa.Integer, primary_key=True)
-    group_id = sa.Column(sa.Integer, sa.ForeignKey('groups.id'), nullable=False)
-    playlist_name = sa.Column(sa.String(100))
-    time_range = sa.Column(sa.String(50))
-    genre = sa.Column(sa.String(50))
-    # tags = sa.Column(sa.String(200))
-    num_tracks = sa.Column(sa.Integer)
-    link = sa.Column(sa.String(255), default=None)
-
-
+    id = db.Column(db.Integer, primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    playlist_name = db.Column(db.String(100))
+    num_tracks = db.Column(db.Integer)
+    link = db.Column(db.String(255), default=None)
 
