@@ -26,9 +26,9 @@ pl_dict = {
     "num_tracks": 80
 }
 
-pl_data = json.dumps(pl_dict)
+#pl_data = json.dumps(pl_dict)
 
-create_playlist(pl_data)
+#create_playlist(pl_data)
 
 subscriber = pubsub_v1.SubscriberClient()
 subscription_path = subscriber.subscription_path(project_id, subscription_id)
@@ -52,15 +52,15 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
         print("Failed to create playlist", e)
 
 
-# streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-# print(f"Listening for messages on {subscription_path}..\n")
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+print(f"Listening for messages on {subscription_path}..\n")
 
-# # Wrap subscriber in a 'with' block to automatically call close() when done.
-# with subscriber:
-#     try:
-#         # When `timeout` is not set, result() will block indefinitely,
-#         # unless an exception is encountered first.
-#         streaming_pull_future.result(timeout=timeout) # timeout=timeout
-#     except TimeoutError:
-#         streaming_pull_future.cancel()  # Trigger the shutdown.
-#         streaming_pull_future.result()  # Block until the shutdown is complete.
+# Wrap subscriber in a 'with' block to automatically call close() when done.
+with subscriber:
+     try:
+         # When `timeout` is not set, result() will block indefinitely,
+         # unless an exception is encountered first.
+        streaming_pull_future.result(timeout=timeout) # timeout=timeout
+     except TimeoutError:
+        streaming_pull_future.cancel()  # Trigger the shutdown.
+        streaming_pull_future.result()  # Block until the shutdown is complete.
