@@ -92,20 +92,51 @@ def request_membership():
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
 
-@main.route('/get_invitations', methods=['GET'])
+@main.route('/get_all_invitations', methods=['POST'])
 @login_required
-def get_invitations():
-    if request.method == 'GET':
+def get_all_invitations():
+    if request.method == 'POST':
         user_id = session.get('user_id')
-
+        invitation_list = []
         try:
-            invitations = Invitation.query.filter_by(user_id=user_id)
-            response = {'success': True, 'message': 'Invites fetched.', 'data': invitations}
+            invitations = Invitation.query.filter_by(user_id=user_id, status='pending')
+            for invite in invitations:
+                invite_data = {
+                    'id': invite.id,
+                    'user_id': invite.user_id,
+                    'group_id': invite.group_id,
+                    'status': invite.status
+                }
+                invitation_list.append(invite_data)
+            response = {'success': True, 'message': 'Invites fetched.', 'data': invitation_list}
         except Exception as e:
             response = {'success': False, 'message': e}
-        return jsonify(response)
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 
-
+@main.route('/get_all_membership_requests', methods=['POST'])
+@login_required
+def get_all_membership_requests():
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        membership_request_list = []
+        try:
+            membership_requests = MembershipRequest.query.filter_by(user_id=user_id, status='pending')
+            for membership_request in membership_requests:
+                membership_request_data = {
+                    'id': membership_request.id,
+                    'user_id': membership_request.user_id,
+                    'group_id': membership_request.group_id,
+                    'status': membership_request.status
+                }
+                membership_request_list.append(membership_request_data)
+            response = {'success': True, 'message': 'Membership Requests fetched.', 'data': membership_request_list}
+        except Exception as e:
+            response = {'success': False, 'message': e}
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 
 @main.route('/create_group', methods=['GET', 'POST'])
 @login_required
@@ -132,27 +163,31 @@ def create_group():
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
 
-@main.route('/list_groups')
+@main.route('/list_groups',methods=['POST'])
 def list_groups():
-    groups = Group.query.all()
-    group_list = []
-    for group in groups:
-        group_data = {
-            'id': group.id,
-            'name': group.name,
-            'description': group.description,
-            'owner': {
-                'id': group.owner.id,
-                'username': group.owner.name
+    if request.method == 'POST':
+        groups = Group.query.all()
+        group_list = []
+        for group in groups:
+            group_data = {
+                'id': group.id,
+                'name': group.name,
+                'description': group.description,
+                'owner': {
+                    'id': group.owner.id,
+                    'username': group.owner.name
+                }
             }
-        }
         group_list.append(group_data)
 
-    return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
+        return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
 
-@main.route('/process_request', methods=['POST'])
+@main.route('/process_membership_request', methods=['POST'])
 @login_required
-def process_request():
+def process_membership_request():
     if request.method == 'POST':
         user_id = session.get('user_id')
         group_id = request.form.get('group_id')
