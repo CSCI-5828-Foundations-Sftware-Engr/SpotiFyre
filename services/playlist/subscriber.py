@@ -21,37 +21,37 @@ data = Group(id=1)
 
 create_playlist(data)
 
-# subscriber = pubsub_v1.SubscriberClient()
-# subscription_path = subscriber.subscription_path(project_id, subscription_id)
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
-# def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-#     print(f"Received {message.data!r}.")
+def callback(message: pubsub_v1.subscriber.message.Message) -> None:
+    print(f"Received {message.data!r}.")
 
-#     # Test the data coming in.
-#     data = json.loads(message.data)
+    # Test the data coming in.
+    data = json.loads(message.data)
 
-#     if message.attributes:
-#         print("Attributes:")
-#         for key in message.attributes:
-#             value = message.attributes.get(key)
-#             print(f"{key}: {value}")
+    if message.attributes:
+        print("Attributes:")
+        for key in message.attributes:
+            value = message.attributes.get(key)
+            print(f"{key}: {value}")
     
-#     try:
-#         create_playlist(data)
-#         message.ack()
-#     except Exception as e:
-#             print("Failed to create playlist", e)
+    try:
+        create_playlist(data)
+        message.ack()
+    except Exception as e:
+            print("Failed to create playlist", e)
 
 
-# streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-# print(f"Listening for messages on {subscription_path}..\n")
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+print(f"Listening for messages on {subscription_path}..\n")
 
-# # Wrap subscriber in a 'with' block to automatically call close() when done.
-# with subscriber:
-#     try:
-#         # When `timeout` is not set, result() will block indefinitely,
-#         # unless an exception is encountered first.
-#         streaming_pull_future.result(timeout=timeout) # timeout=timeout
-#     except TimeoutError:
-#         streaming_pull_future.cancel()  # Trigger the shutdown.
-#         streaming_pull_future.result()  # Block until the shutdown is complete.
+# Wrap subscriber in a 'with' block to automatically call close() when done.
+with subscriber:
+    try:
+        # When `timeout` is not set, result() will block indefinitely,
+        # unless an exception is encountered first.
+        streaming_pull_future.result(timeout=timeout) # timeout=timeout
+    except TimeoutError:
+        streaming_pull_future.cancel()  # Trigger the shutdown.
+        streaming_pull_future.result()  # Block until the shutdown is complete.
