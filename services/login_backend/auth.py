@@ -11,6 +11,10 @@ auth = Blueprint('auth', __name__)
 def home():
     return render_template('home.html')
 
+@auth.route('/test', methods=['GET', 'POST'])
+def root():
+    return jsonify({'message': 'Welcome to login service!'}), 200
+
 @auth.route('/login')
 def login():
     return render_template('login.html')
