@@ -67,9 +67,11 @@ def get_all_tracks(members, num_tracks):
 def get_playlist_tracks(pl_tracks, num_tracks):
 
     pl_track_uris = list() # [track for track in all_tracks]
-    
+    counter = 0
     for track in pl_tracks:
-        pl_track_uris.append(track.track_uri)
+        if counter < num_tracks:
+            pl_track_uris.append(track.track_uri)
+        counter += 1
     
     return pl_track_uris
 
