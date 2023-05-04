@@ -38,7 +38,7 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     print(f"Received {message.data!r}.")
 
      # Test the data coming in.
-    data = json.loads(message.data)
+    # data = json.loads(message.data)
 
     if message.attributes:
         print("Attributes:")
@@ -47,7 +47,7 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
             print(f"{key}: {value}")
     
     try:
-        create_playlist(data)
+        create_playlist(message.data)
         message.ack()
     except Exception as e:
         print("Failed to create playlist", e)
