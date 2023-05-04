@@ -40,7 +40,7 @@ def login_post():
     login_user(user, remember=False)
     session['user_id'] = user.id
 
-    response = {'success': True, 'message': 'Login Successful'}
+    response = {'success': True, 'message': 'Login Successful', 'data': {'user_id': user.id}}
     return jsonify(response)
     # return redirect(url_for('main.profile'))
 

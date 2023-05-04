@@ -97,10 +97,12 @@ def create_group():
     if request.method == 'POST':
         name = request.form['group_name']
         description = request.form['group_description']
-        owner = session.get('user_id')
+        user_id = session.get('user_id')
+        user = User.query.get(user_id)
+        
 
         # Create a new group instance
-        new_group = Group(name=name, description=description, owner=owner)
+        new_group = Group(name=name, description=description, owner=user)
 
         try:
             # Add the new group to the database
@@ -125,7 +127,7 @@ def list_groups():
             'description': group.description,
             'owner': {
                 'id': group.owner.id,
-                'username': group.owner.username
+                'username': group.owner.name
             }
         }
         group_list.append(group_data)
