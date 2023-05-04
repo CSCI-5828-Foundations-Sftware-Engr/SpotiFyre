@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 function Groups(props) {
     
     const [groupsList, setGroupsList] = useState([])
+    const [invitationsList, setInvitationsList] = useState([])
 
     const createGroup = async (group_name, group_description) => {
         await fetch('/create_group', {
@@ -49,6 +50,23 @@ function Groups(props) {
         })
     };
 
+    const showInvitations = async () => {
+        await fetch('/get_all_invitations', {
+            method: 'POST',
+            mode: 'no-cors'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data.message)
+            console.log(data.data)
+            if (data.success === true) {
+                setInvitationsList(data.data)
+            }
+        })
+        .catch((err) => {
+            console.log(err.message);
+        })
+    };
     const inviteUser = async (group_id, email) => {
         await fetch('/invite_members', {
             method: 'POST',
@@ -151,6 +169,34 @@ function Groups(props) {
                 }
 
             </div>
+        : props.groupOption===3?
+            <div>
+                <h1>Check your group invitations here!</h1>
+                <Button type="button" onClick={() => showInvitations()} variant="dark">Show Invitations</Button>
+                {
+                    invitationsList?
+                        <div>
+                            <ol>
+                                {invitationsList.map((invitation) => (
+                                    <>
+                                    <li key={invitation.id}>From Group ID: {invitation.group_id}</li>
+                                    
+                                    <Button type='button' variant="outline-dark" size='sm'>
+                                        Accept
+                                    </Button>
+                                    
+                                    </>
+                                ))}
+                            </ol>
+                            
+                        </div>
+                    :
+                        <div>
+                            <p>No groups found.</p>
+                        </div>
+
+                }
+            </div>
         :
             <div>
                 <h1>
@@ -160,6 +206,9 @@ function Groups(props) {
                 <br></br>
                 <br></br>
                 <Button type="button" onClick={() => props.setGroupOption(2)} variant="dark">List Groups</Button>
+                <br></br>
+                <br></br>
+                <Button type="button" onClick={() => props.setGroupOption(3)} variant="dark">Group Invitations</Button>
             </div>
     )
 }
