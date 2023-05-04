@@ -6,6 +6,7 @@ function Groups(props) {
     
     const [groupsList, setGroupsList] = useState([])
     const [invitationsList, setInvitationsList] = useState([])
+    const [requestsList, setRequestsList] = useState([])
 
     const createGroup = async (group_name, group_description) => {
         await fetch('/create_group', {
@@ -20,9 +21,7 @@ function Groups(props) {
            .then((data) => {
                 console.log(data.message)
                 alert(data.message)
-                // if (!data.success) {
-                //     alert(data.message)
-                // }
+
                 if (data.success === true) {
                     props.setGroupOption(0)
                 }
@@ -67,6 +66,44 @@ function Groups(props) {
             console.log(err.message);
         })
     };
+
+    const showRequests = async () => {
+        await fetch('/get_all_membership_requests', {
+            method: 'POST',
+            mode: 'no-cors'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data.message)
+            console.log(data.data)
+            if (data.success === true) {
+                setRequestsList(data.data)
+            }
+        })
+        .catch((err) => {
+            console.log(err.message);
+        })
+    };
+
+    const requestGroupJoin = async (group_id) => {
+        await fetch('/request_membership', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: "group_id="+group_id,
+            headers: {
+               'Content-type': "application/x-www-form-urlencoded",
+            },
+         })
+            .then((response) => response.json())
+            .then((data) => {
+                 console.log(data.message)
+                 alert(data.message)
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+    };
+
     const inviteUser = async (group_id, email) => {
         await fetch('/invite_members', {
             method: 'POST',
@@ -80,17 +117,52 @@ function Groups(props) {
             .then((data) => {
                  console.log(data.message)
                  alert(data.message)
-                 // if (!data.success) {
-                 //     alert(data.message)
-                 // }
-                //  if (data.success === true) {
-                //      props.setGroupOption(0)
-                //  }
             })
             .catch((err) => {
                console.log(err.message);
             });
     };
+
+    const sendInviteDecision = async (group_id, action) => {
+        await fetch('/process_invitation', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: "group_id="+group_id+"&action="+action,
+            headers: {
+               'Content-type': "application/x-www-form-urlencoded",
+            },
+         })
+            .then((response) => response.json())
+            .then((data) => {
+                 console.log(data.message)
+                 alert(data.message)
+
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+    };
+
+    const sendRequestDecision = async (group_id, user_id, action) => {
+        await fetch('/process_membership_request', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: "group_id="+group_id+"&action="+action+"&user_id="+user_id,
+            headers: {
+               'Content-type': "application/x-www-form-urlencoded",
+            },
+         })
+            .then((response) => response.json())
+            .then((data) => {
+                 console.log(data.message)
+                 alert(data.message)
+
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         
@@ -151,7 +223,7 @@ function Groups(props) {
                                                     Invite
                                                 </Button>
                                             :
-                                                <Button type='button' variant="outline-dark" size='sm'>
+                                                <Button type='button' variant="outline-dark" size='sm' onClick={() => requestGroupJoin(group.id)}>
                                                     Request
                                                 </Button>
                                         }
@@ -181,8 +253,11 @@ function Groups(props) {
                                     <>
                                     <li key={invitation.id}>From Group ID: {invitation.group_id}</li>
                                     
-                                    <Button type='button' variant="outline-dark" size='sm'>
+                                    <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'accept')} variant="outline-dark" size='sm'>
                                         Accept
+                                    </Button>
+                                    <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'reject')} variant="outline-dark" size='sm'>
+                                        Reject
                                     </Button>
                                     
                                     </>
@@ -192,11 +267,42 @@ function Groups(props) {
                         </div>
                     :
                         <div>
-                            <p>No groups found.</p>
+                            <p>No invitations found.</p>
                         </div>
 
                 }
             </div>
+        : props.groupOption===4?
+                <div>
+                    <h1>Manage your group requests here!</h1>
+                    <Button type="button" onClick={() => showRequests()} variant="dark">Show Requests</Button>
+                    {
+                        requestsList?
+                            <div>
+                                <ol>
+                                    {requestsList.map((request) => (
+                                        <>
+                                        <li key={request.id}>From User ID: {request.user_id}</li>
+                                        
+                                        <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'accept')} variant="outline-dark" size='sm'>
+                                            Accept
+                                        </Button>
+                                        <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'reject')} variant="outline-dark" size='sm'>
+                                            Reject
+                                        </Button>
+                                        
+                                        </>
+                                    ))}
+                                </ol>
+                                
+                            </div>
+                        :
+                            <div>
+                                <p>No requests found.</p>
+                            </div>
+
+                    }
+                </div>
         :
             <div>
                 <h1>
@@ -209,6 +315,9 @@ function Groups(props) {
                 <br></br>
                 <br></br>
                 <Button type="button" onClick={() => props.setGroupOption(3)} variant="dark">Group Invitations</Button>
+                <br></br>
+                <br></br>
+                <Button type="button" onClick={() => props.setGroupOption(4)} variant="dark">Group Requests</Button>
             </div>
     )
 }
