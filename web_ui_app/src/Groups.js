@@ -46,15 +46,53 @@ function Groups(props) {
         .catch((err) => {
             console.log(err.message);
         })
-    }
+    };
 
+    const inviteUser = async (group_id, email) => {
+        await fetch('/invite_members', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: "group_id="+group_id+"&email="+email,
+            headers: {
+               'Content-type': "application/x-www-form-urlencoded",
+            },
+         })
+            .then((response) => response.json())
+            .then((data) => {
+                 console.log(data.message)
+                 alert(data.message)
+                 // if (!data.success) {
+                 //     alert(data.message)
+                 // }
+                //  if (data.success === true) {
+                //      props.setGroupOption(0)
+                //  }
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+    };
     const handleSubmit = (e) => {
         e.preventDefault();
         
         var {grpname, grpdesc} = document.forms[0]
         console.log(grpname.value, grpdesc.value)
         createGroup(grpname.value, grpdesc.value);
-    };   
+    };
+    
+    const handleInviteClick = (group_id) => {
+        // e.preventDefault();
+        // var email;
+        var email = prompt("Invite e-mail address:", "");
+        console.log(group_id);
+        console.log(email);
+        if (email == null || email == "") {
+            alert("Invite cancelled");
+          } else {
+            inviteUser(group_id, email);
+          }
+
+    }
     return (
         props.groupOption===1?
             <div>
@@ -87,14 +125,18 @@ function Groups(props) {
                                 {groupsList.map((group) => (
                                     <>
                                     <li key={group.id}>{group.name}</li>
-                                    <Button type='button' variant="outline-dark" size='sm'>
+                                    
                                         {
-                                            group.owner.id === localStorage.getItem("user_id")?
-                                            <>Invite</>
+                                            group.owner.id === Number(localStorage.getItem("user_id"))?
+                                                <Button type='button' variant="outline-dark" size='sm' onClick={() => handleInviteClick(group.id)}>
+                                                    Invite
+                                                </Button>
                                             :
-                                            <>Request</>
+                                                <Button type='button' variant="outline-dark" size='sm'>
+                                                    Request
+                                                </Button>
                                         }
-                                    </Button>
+                                    
                                     </>
                                 ))}
                             </ol>

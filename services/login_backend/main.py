@@ -32,26 +32,26 @@ def invite_members():
             group = Group.query.get(group_id)
 
             # Check if the invited member is already part of the group
-            if invited_user in group.members:
-                response = {'success': False, 'message': 'Member is already part of the group'}
-                flash('Member is already part of the group', 'info')
-            else:
+            # if invited_user in group.members:
+            #     response = {'success': False, 'message': 'Member is already part of the group'}
+            #     flash('Member is already part of the group', 'info')
+            # else:
                 # Check if the invitation already exists
-                invitation = Invitation.query.filter_by(group_id=group_id, email=email).first()
-                if invitation:
-                    response = {'success': False, 'message': 'Invitation already sent'}
-                else:
-                    # Create a new invitation
-                    new_invitation = Invitation(user_id=invited_user.id, group_id=group_id)
-                    db.session.add(new_invitation)
-                    db.session.commit()
+            invitation = Invitation.query.filter_by(group_id=group_id, email=email).first()
+            if invitation:
+                response = {'success': False, 'message': 'Invitation already sent'}
+            else:
+                # Create a new invitation
+                new_invitation = Invitation(user_id=invited_user.id, group_id=group_id)
+                db.session.add(new_invitation)
+                db.session.commit()
 
-                    response = {'success': True, 'message': 'Invitation sent successfully'}
+                response = {'success': True, 'message': 'Invitation sent successfully'}
 
-                    # Update the invited member's profile with the invitation
-                    invited_user.invitations_received.append(new_invitation)
-                    # group.invitations_sent.append(new_invitation)
-                    db.session.commit()
+                # Update the invited member's profile with the invitation
+                invited_user.invitations_received.append(new_invitation)
+                # group.invitations_sent.append(new_invitation)
+                db.session.commit()
 
         else:
             response = {'success': False, 'message': 'Member does not exist'}
@@ -70,24 +70,24 @@ def request_membership():
         user = User.query.get(user_id)
 
         # Check if the user is already a member of the group
-        if user in group.members:
-            response = {'success': False, 'message': 'Member is already part of the group'}
-        else:
+        # if user in group.members:
+        #     response = {'success': False, 'message': 'Member is already part of the group'}
+        # else:
             # Check if a membership request already exists
-            membership_request = MembershipRequest.query.filter_by(group_id=group_id, user_id=user_id).first()
-            if membership_request:
-                response = {'success': False, 'message': 'Membership request already sent'}
-            else:
-                # Create a new membership request
-                new_membership_request = MembershipRequest(user_id=user_id, group_id=group_id)
-                db.session.add(new_membership_request)
-                db.session.commit()
-                response = {'success': True, 'message': 'Membership request sent successfully'}
+        membership_request = MembershipRequest.query.filter_by(group_id=group_id, user_id=user_id).first()
+        if membership_request:
+            response = {'success': False, 'message': 'Membership request already sent'}
+        else:
+            # Create a new membership request
+            new_membership_request = MembershipRequest(user_id=user_id, group_id=group_id)
+            db.session.add(new_membership_request)
+            db.session.commit()
+            response = {'success': True, 'message': 'Membership request sent successfully'}
 
-                # Update the group's profile with the invitation
-                # invited_user.invitations_received.append(new_invitation)
-                group.requests_received.append(new_membership_request)
-                db.session.commit()
+            # Update the group's profile with the invitation
+            # invited_user.invitations_received.append(new_invitation)
+            group.requests_received.append(new_membership_request)
+            db.session.commit()
     else:
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)

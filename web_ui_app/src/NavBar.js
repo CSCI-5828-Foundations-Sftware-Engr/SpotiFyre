@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 
 function NavBar(props) {
     const changeToLogout = () => {
+        props.navOption(1)
         props.loginStatus(false)
         localStorage.clear()
     };
