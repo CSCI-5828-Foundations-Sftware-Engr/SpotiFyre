@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, session, Blueprint,
 from flask_login import login_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User, Group, Invitation, MembershipRequest
+from .models import User, Group, Invitation, MembershipRequest, Member
 from . import db
 main = Blueprint('main', __name__)
 
@@ -150,10 +150,11 @@ def create_group():
 
         # Create a new group instance
         new_group = Group(name=name, description=description, owner=user)
-
+        new_member = Member(group_id=new_group.id, user_id=user_id)
         try:
             # Add the new group to the database
             db.session.add(new_group)
+            db.session.add(new_member)
             db.session.commit()
             response = {'success': True, 'message': 'Group created successfully.', 'data' : new_group.id}
         except:
@@ -185,30 +186,65 @@ def list_groups():
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
 
+@main.route('/list_user_groups',methods=['POST'])
+def list_user_groups():
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        groups_requested=MembershipRequest.query.filter_by(user_id=user_id, status='accepted')
+        groups_invited=Invitation.query.filter_by(user_id=user_id, status='accepted')
+        group_list = []
+        for group in groups_requested:
+            group_data = {
+                'id': group.id,
+                'name': group.name,
+                'description': group.description,
+                'owner': {
+                    'id': group.owner.id,
+                    'username': group.owner.name
+                }
+            }
+        group_list.append(group_data)
+
+        return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
+    else:
+        response = {'success': False, 'message': 'Not a POST request'}
+    return jsonify(response)
+
 @main.route('/process_membership_request', methods=['POST'])
 @login_required
 def process_membership_request():
     if request.method == 'POST':
-        user_id = session.get('user_id')
+        user_id = request.form.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
-
+        if action != 'accept' or action !='reject' :
+            response = {'success': False, 'message': 'Invalid action'}
+            return jsonify(response)
+        new_member=None
         membership_request = MembershipRequest.query.filter_by(user_id=user_id, group_id=group_id).first()
         if membership_request:
             if action == 'accept':
                 membership_request.status = 'accepted'
-                response = {'success': True, 'message': 'Membership request accepted'}
-            elif action == 'reject':
-                membership_request.status = 'rejected'
-                response = {'success': True, 'message': 'Membership request rejected'}
+                if  Member.query.filter_by(user_id=user_id, group_id=group_id) is None :
+                    new_member = Member(user_id=user_id, group_id=group_id)
+                status =  'accepted'
             else:
-                response = {'success': False, 'message': 'Invalid action'}
+                membership_request.status = 'rejected'
+                status = 'rejected'
 
-            db.session.commit()
+            try :
+                # Add a member
+                if new_member :
+                    db.session.add(new_member)
 
-            # Delete the membership request
-            db.session.delete(membership_request)
-            db.session.commit()
+                # Delete the membership request
+                db.session.delete(membership_request)
+                db.session.commit()
+                response = {'success': True, 'message': 'Membership request processed - '+status}
+
+            except :
+                db.session.rollback()
+                response = {'success': False, 'message': 'Error processing the Membership request'}
     else:
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
@@ -220,23 +256,35 @@ def process_invitation():
         user_id = session.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
-
+        if action != 'accept' or action !='reject' :
+            response = {'success': False, 'message': 'Invalid action'}
+            return jsonify(response)
         invitation = Invitation.query.filter_by(user_id=user_id, group_id=group_id).first()
         if invitation:
             if action == 'accept':
                 invitation.status = 'accepted'
-                response = {'success': True, 'message': 'Invitation accepted'}
-            elif action == 'reject':
-                invitation.status = 'rejected'
-                response = {'success': True, 'message': 'Invitation rejected'}
+                if  Member.query.filter_by(user_id=user_id, group_id=group_id) is None :
+                    new_member = Member(user_id=user_id, group_id=group_id)
+                status =  'accepted'
             else:
-                response = {'success': False, 'message': 'Invalid action'}
+                invitation.status = 'rejected'
+                status =  'rejected'
 
-            db.session.commit()
+            try :
 
-            # Delete the invitation
-            db.session.delete(invitation)
-            db.session.commit()
+                # Add a member
+                if new_member :
+                    db.session.add(new_member)
+
+                # Delete the invitation
+                db.session.delete(invitation)
+                db.session.commit()
+                response = {'success': True, 'message': 'Invitation processed - '+status}
+
+            except :
+                db.session.rollback()
+                response = {'success': False, 'message': 'Error processing the invitation'}
+
     else:
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
