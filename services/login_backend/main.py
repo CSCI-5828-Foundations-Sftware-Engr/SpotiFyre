@@ -91,6 +91,22 @@ def request_membership():
     else:
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
+
+@main.route('/get_invitations', methods=['GET'])
+@login_required
+def get_invitations():
+    if request.method == 'GET':
+        user_id = session.get('user_id')
+
+        try:
+            invitations = Invitation.query.filter_by(user_id=user_id)
+            response = {'success': True, 'message': 'Invites fetched.', 'data': invitations}
+        except Exception as e:
+            response = {'success': False, 'message': e}
+        return jsonify(response)
+
+
+
 @main.route('/create_group', methods=['GET', 'POST'])
 @login_required
 def create_group():
