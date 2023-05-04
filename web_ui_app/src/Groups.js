@@ -200,6 +200,7 @@ function Groups(props) {
             .then((response) => response.json())
             .then((data) => {
                  console.log(data.message)
+                 console.log(data.data)
                  if (data.success === true) {
                     setPlaylistId(data.data)
                  }
@@ -221,10 +222,10 @@ function Groups(props) {
          })
             .then((response) => response.json())
             .then((data) => {
-                 console.log(data.message)
-                 if (data.message === 'Created playlist link') {
-                    setPlaylistLink(data.data)
-                 }
+                console.log(data.message)
+                setPlaylistLink(data.data)
+                alert(data.data)
+                 
             })
             .catch((err) => {
                console.log(err.message);
@@ -233,16 +234,14 @@ function Groups(props) {
 
     const handleGeneratePlaylistForm = (group) => {
         setGroupsList(false);
-        setGeneratePlaylistForm(group)
+        setGeneratePlaylistForm(group);
     }
 
     const handlePlaylistFormSubmit = (group_id) => {
         var {plstname, numtracks} = document.forms[0];
         console.log(group_id, plstname.value, Number(numtracks.value));
         generatePlaylist(group_id, plstname.value, Number(numtracks.value));
-        if (playlistId) {
-            getPlaylistLink(playlistId)
-        }
+        getPlaylistLink(playlistId);
     }
 
     return (
@@ -290,7 +289,7 @@ function Groups(props) {
                                             </div>
                                                 
                                             : group.isMember?
-                                                <>{}</>
+                                                <>Already a member</>
                                             :
                                                 <Button type='button' variant="outline-dark" size='sm' onClick={() => requestGroupJoin(group.id)}>
                                                     Request
@@ -312,7 +311,7 @@ function Groups(props) {
                                     {/* {renderErrorMessage("uname")} */}
                                 </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="formBasicPassword">
+                                <Form.Group className="mb-3" controlId="formTrackNum">
                                     <Form.Label>Number of tracks</Form.Label>
                                     <Form.Control type="number" placeholder="12" name="numtracks"/>
                                     {/* {renderErrorMessage("pass")} */}
