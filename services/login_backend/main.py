@@ -103,7 +103,9 @@ def get_all_invitations():
                 invite_data = {
                     'id': invite.id,
                     'user_id': invite.user_id,
+                    'user_name': User.query.filter_by(id=invite.user_id).first().name,
                     'group_id': invite.group_id,
+                    'group_name': Group.query.filter_by(id=invite.group_id).first().name,
                     'status': invite.status
                 }
                 invitation_list.append(invite_data)
@@ -131,7 +133,9 @@ def get_all_membership_requests():
                     membership_request_data = {
                         'id': membership_request.id,
                         'user_id': membership_request.user_id,
+                        'user_name': User.query.filter_by(id=membership_request.user_id).first().name,
                         'group_id': membership_request.group_id,
+                        'group_name': Group.query.filter_by(id=membership_request.group_id).first().name,
                         'status': membership_request.status
                     }
                     membership_request_list.append(membership_request_data)
