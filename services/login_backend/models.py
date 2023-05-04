@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
-    cache = db.Column(db.String(100), unique=True)
+    cache = db.Column(db.String(100), unique=True, default='default-cache')
 
     invitations_received = db.relationship('Invitation', backref='user', lazy=True)
     #requests_sent = db.relationship('MembershipRequest', backref='user', lazy=True)

@@ -253,7 +253,7 @@ function Groups(props) {
                             <ol>
                                 {invitationsList.map((invitation) => (
                                     <>
-                                    <li key={invitation.id}>From Group ID: {invitation.group_id}</li>
+                                    <li key={invitation.id}>From user {invitation.user_name}, for group {invitation.group_name}</li>
                                     
                                     <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'accept')} variant="outline-dark" size='sm'>
                                         Accept
@@ -284,7 +284,7 @@ function Groups(props) {
                                 <ol>
                                     {requestsList.map((request) => (
                                         <>
-                                        <li key={request.id}>From User ID: {request.user_id}</li>
+                                        <li key={request.id}>From user {request.user_name}, for group {request.group_name}</li>
                                         
                                         <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'accept')} variant="outline-dark" size='sm'>
                                             Accept
