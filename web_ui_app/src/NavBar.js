@@ -4,16 +4,25 @@ import Navbar from 'react-bootstrap/Navbar';
 
 function NavBar(props) {
     const changeToLogout = () => {
+        props.navOption(1)
         props.loginStatus(false)
         localStorage.clear()
     };
+
+    const changeNavOption = (opt) => {
+        if (opt === 2) {
+            props.setGroupOption(0)
+        }
+        props.navOption(opt)
+    };
+
     return (
         <Navbar bg="dark" variant="dark">
         <Container>
-          <Navbar.Brand href="#home">SpotiFyre</Navbar.Brand>
+          <Navbar.Brand onClick={() => changeNavOption(1)}>SpotiFyre</Navbar.Brand>
           <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#features">Features</Nav.Link>
+            <Nav.Link onClick={() => changeNavOption(1)}>Home</Nav.Link>
+            <Nav.Link onClick={() => changeNavOption(2)}>Groups</Nav.Link>
             <Nav.Link href="#pricing">Pricing</Nav.Link>
           </Nav>
           <Nav>

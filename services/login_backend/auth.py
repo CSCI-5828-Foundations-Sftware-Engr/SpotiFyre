@@ -38,9 +38,8 @@ def login_post():
     login_user(user, remember=False)
     session['user_id'] = user.id
 
-    response = {'success': True, 'message': 'Login Successful'}
+    response = {'success': True, 'message': 'Login Successful', 'data': {'user_id': user.id}}
     return jsonify(response)
-    # return redirect(url_for('main.profile'))
 
 
 @auth.route('/signup')
@@ -74,7 +73,6 @@ def signup_post():
 
     response = {'success': True, 'message': ' Sign up successful'}
     return jsonify(response)
-    # return redirect(url_for('auth.login'))
 
 
 @auth.route('/logout')
@@ -82,4 +80,3 @@ def logout():
     session.pop('user_id', None)
     response = {'success': True, 'message': 'Logged out successfully'}
     return jsonify(response)
-    # return redirect('/')

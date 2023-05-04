@@ -34,6 +34,14 @@ def create_app():
         cur.execute(
             "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar NOT NULL, email varchar NOT NULL, password varchar NOT NULL, cache varchar DEFAULT 'default-cache');")
         cur.execute(
+            "CREATE TABLE IF NOT EXISTS Groups (id SERIAL PRIMARY KEY, name VARCHAR(100) NOT NULL, description VARCHAR(255) NOT NULL, owner_id INTEGER NOT NULL, FOREIGN KEY (owner_id) REFERENCES users (id));")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Invitations (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, group_id INTEGER NOT NULL, status VARCHAR(10) DEFAULT 'pending', FOREIGN KEY (user_id) REFERENCES users (id), FOREIGN KEY (group_id) REFERENCES groups (id));")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Membership_Requests (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, group_id INTEGER NOT NULL,status VARCHAR(10) DEFAULT 'pending', FOREIGN KEY (user_id) REFERENCES users (id), FOREIGN KEY (group_id) REFERENCES groups (id));")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Members (id serial PRIMARY KEY,  user_id INTEGER NOT NULL, group_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES Users (id), FOREIGN KEY (group_id) REFERENCES Groups (id));")            
+        cur.execute(
             "CREATE TABLE IF NOT EXISTS Tracks (id serial PRIMARY KEY, track_uri varchar NOT NULL, track_name varchar NOT NULL, track_artist varchar NOT NULL);") # , track_genres varchar
         cur.execute(
             "CREATE TABLE IF NOT EXISTS UserTracks (id serial PRIMARY KEY, user_id int REFERENCES Users(id)  NOT NULL, track_id int REFERENCES Tracks(id) NOT NULL);")
@@ -50,6 +58,7 @@ def create_app():
     login_manager.init_app(app)
 
     from .models import User, Tracks, UserTracks
+
 
     @login_manager.user_loader
     def load_user(user_id):
