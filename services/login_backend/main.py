@@ -154,6 +154,7 @@ def create_group():
         try:
             # Add the new group to the database
             db.session.add(new_group)
+            db.session.commit()
             db.session.add(new_member)
             db.session.commit()
             response = {'success': True, 'message': 'Group created successfully.', 'data' : new_group.id}
