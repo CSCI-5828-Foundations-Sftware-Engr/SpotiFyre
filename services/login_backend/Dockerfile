@@ -5,7 +5,10 @@ FROM python:3.11-slim
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
-
+ENV SPOTIPY_CLIENT_ID='3d7af19cb8f84dcab05b9f44feab935e'
+ENV SPOTIPY_CLIENT_SECRET='e21a86202bc14a83a20f32c80e0d700b'
+ENV SPOTIPY_REDIRECT_URI='http://localhost:8080/callback'
+ENV SPOTIFY_SCOPE='user-read-recently-played user-library-read user-top-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative'
 
 # Install production dependencies.
 COPY ./requirements.txt ./requirements.txt

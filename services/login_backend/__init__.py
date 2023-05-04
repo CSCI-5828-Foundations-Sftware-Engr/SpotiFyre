@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
 import psycopg2
 from flask_login import LoginManager
 import os 
+
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 host = os.getenv('PQ_HOST', "postgres-db-postgresql")
@@ -31,7 +32,11 @@ def create_app():
     cur = conn.cursor()
     try:
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar, email varchar, password varchar);")
+            "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar NOT NULL, email varchar NOT NULL, password varchar NOT NULL, access_token varchar DEFAULT 'default-access-token');")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Tracks (track_id serial PRIMARY KEY, track_uri varchar NOT NULL, track_name varchar NOT NULL, track_artist varchar NOT NULL);") # , track_genres varchar
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS UserTracks (ut_id serial PRIMARY KEY, user_id int REFERENCES Users(id)  NOT NULL, track_id int REFERENCES Tracks(track_id) NOT NULL);")
     except Exception as e:
         print(e)
         exit(0) 
@@ -44,12 +49,12 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    from .models import Users
+    from .models import User, Tracks, UserTracks
 
     @login_manager.user_loader
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
-        return Users.query.get(int(user_id))
+        return User.query.get(int(user_id))
 
     # blueprint for auth routes in our app
     from .auth import auth as auth_blueprint
@@ -58,5 +63,9 @@ def create_app():
     # blueprint for non-auth parts of app
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    # blueprint for spotify parts of app
+    from .spotify_login import spotify_login as spotify_login_blueprint
+    app.register_blueprint(spotify_login_blueprint)
 
     return app

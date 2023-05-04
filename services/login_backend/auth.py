@@ -1,11 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Users
+from .models import User
 from . import db
 from flask_login import login_user
 
 auth = Blueprint('auth', __name__)
-
 
 @auth.route('/')
 def home():
@@ -18,7 +17,6 @@ def root():
 @auth.route('/login')
 def login():
     return render_template('login.html')
-
 
 @auth.route('/login', methods=['POST'])
 def login_post():
@@ -57,7 +55,7 @@ def signup_post():
     password = request.form.get('password')
     hashed_password = generate_password_hash(password, method='sha256')
 
-    user = Users.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
 
     if user:
         # flash('email exists', 'danger')
@@ -66,7 +64,7 @@ def signup_post():
         response = {'success': False, 'message': 'Please check your login details and try again.'}
         return jsonify(response)
 
-    new_user = Users(email=email, name=name,
+    new_user = User(email=email, name=name,
                      password=hashed_password)
     try:
         db.session.add(new_user)
