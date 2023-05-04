@@ -57,14 +57,14 @@ def get_all_tracks(members):
         print("No group found")
 
 
-def get_playlist_tracks(all_tracks, num_tracks):
+# def get_playlist_tracks(all_tracks, num_tracks):
 
-    pl_tracks = dict() # [track for track in all_tracks]
+#     pl_tracks = dict() # [track for track in all_tracks]
     
-    for i in range(num_tracks):
-        pl_tracks.append(all_tracks)
+#     for i in range(num_tracks):
+#         pl_tracks.append(all_tracks)
     
-    return pl_tracks
+#     return pl_tracks
 
 def create_spotify_playlist(user_id, playlist_id, name):
     user = session.query(User).filter_by(id=user_id).first()
@@ -86,10 +86,10 @@ def create_spotify_playlist(user_id, playlist_id, name):
     return new_playlist
 
 
-def add_tracks(tracks, playlist):
-    pl_id = playlist["id"]
+# def add_tracks(tracks, playlist):
+#     pl_id = playlist["id"]
 
-    print("pl_id", pl_id)
+#     print("pl_id", pl_id)
 
 
 
@@ -103,7 +103,7 @@ def create_playlist(playlist_data):
     all_tracks = get_all_tracks(members)
 
     # 3. Create a list of tracks of length playlist_data.num_tracks from all the tracks for each member
-    playlist_tracks = get_playlist_tracks(all_tracks, pl_data["num_tracks"])
+    # playlist_tracks = get_playlist_tracks(all_tracks, pl_data["num_tracks"])
 
     # 4. Create playlist (empty initially)
     #   a. ENDPOINT:  https://api.spotify.com/v1/users/{user_id}/playlists
@@ -122,7 +122,7 @@ def create_playlist(playlist_data):
 
     print(create_resp)
 
-    add_resp = add_tracks(playlist_tracks, create_resp)
+    # add_resp = add_tracks(playlist_tracks, create_resp)
     
     # 5. Add 3. to 4.
     #   a. ENDPOINT:  https://api.spotify.com/v1/playlists/{playlist_id}/tracks

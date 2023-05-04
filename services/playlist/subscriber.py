@@ -22,7 +22,7 @@ timeout = 5.0
 pl_dict = {
     "group_id": 1,
     "id": 1,
-    "name": "Test playlist",
+    "playlist_name": "Test playlist",
     "num_tracks": 80
 }
 
