@@ -33,6 +33,7 @@ function Groups(props) {
 
     const showGroups = async () => {
         await fetch('/list_groups', {
+            method: 'POST',
             mode: 'no-cors'
         })
         .then((response) => response.json())

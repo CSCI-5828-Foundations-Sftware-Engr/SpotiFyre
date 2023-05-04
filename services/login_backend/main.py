@@ -178,12 +178,12 @@ def list_groups():
                     'username': group.owner.name
                 }
             }
-        group_list.append(group_data)
+            group_list.append(group_data)
 
         return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
     else:
         response = {'success': False, 'message': 'Not a POST request'}
-    return jsonify(response)
+        return jsonify(response)
 
 @main.route('/process_membership_request', methods=['POST'])
 @login_required
