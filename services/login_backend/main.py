@@ -155,8 +155,7 @@ def create_group():
         description = request.form['group_description']
         user_id = session.get('user_id')
         user = User.query.get(user_id)
-        
-
+        message=''
         # Create a new group instance
         new_group = Group(name=name, description=description, owner=user)
         new_member = Member(user_id=user_id,group_id=new_group.id)
