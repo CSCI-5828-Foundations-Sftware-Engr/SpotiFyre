@@ -19,8 +19,8 @@ def create_playlist():
     if request.method == 'POST':
         group_id = int(request.form['group-id'])
         playlist_name = request.form['playlist-name']
-        time_range = request.form['time-range']
-        genre = request.form['genre']
+        # time_range = request.form['time-range']
+        # genre = request.form['genre']
         # tags = request.form['tags']
         num_tracks = int(request.form['num-tracks'])
 
@@ -30,8 +30,8 @@ def create_playlist():
         playlist_params = Playlist(
             group_id=group_id,
             playlist_name=playlist_name,
-            time_range=time_range,
-            genre=genre,
+            # time_range=time_range,
+            # genre=genre,
             #tags=tags,
             num_tracks=num_tracks,
         )
