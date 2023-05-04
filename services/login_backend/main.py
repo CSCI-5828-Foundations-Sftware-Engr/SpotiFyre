@@ -245,6 +245,7 @@ def process_membership_request():
                 # Add a member
                 if new_member :
                     db.session.add(new_member)
+                    db.session.commit()
 
                 # Delete the membership request
                 db.session.delete(membership_request)
@@ -285,6 +286,7 @@ def process_invitation():
                 # Add a member
                 if new_member :
                     db.session.add(new_member)
+                    db.session.commit()
 
                 # Delete the invitation
                 db.session.delete(invitation)
