@@ -45,6 +45,8 @@ def create_app():
             "CREATE TABLE IF NOT EXISTS Tracks (id serial PRIMARY KEY, track_uri varchar NOT NULL, track_name varchar NOT NULL, track_artist varchar NOT NULL);") # , track_genres varchar
         cur.execute(
             "CREATE TABLE IF NOT EXISTS UserTracks (id serial PRIMARY KEY, user_id int REFERENCES Users(id)  NOT NULL, track_id int REFERENCES Tracks(id) NOT NULL);")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Playlists (id serial PRIMARY KEY, group_id INTEGER NOT NULL, playlist_name varchar NOT NULL, num_tracks INTEGER, link varchar, FOREIGN KEY (group_id) REFERENCES groups (id));")
     except Exception as e:
         print(e)
         exit(0) 
@@ -76,5 +78,8 @@ def create_app():
     # blueprint for spotify parts of app
     from .spotify_login import spotify_login as spotify_login_blueprint
     app.register_blueprint(spotify_login_blueprint)
+
+    from.playlist import playlist as playlist_blueprint
+    app.register_blueprint(playlist_blueprint)
 
     return app

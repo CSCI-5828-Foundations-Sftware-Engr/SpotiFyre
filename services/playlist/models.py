@@ -1,10 +1,10 @@
-from . import db
-from flask_login import UserMixin
-
-
+import sqlalchemy as db
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
-class User(UserMixin, db.Model):
+Base = declarative_base()
+
+class User(Base):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -13,10 +13,10 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     cache = db.Column(db.String(100), unique=True, default='default-cache')
 
-    invitations_received = db.relationship('Invitation', backref='user', lazy=True)
-    #requests_sent = db.relationship('MembershipRequest', backref='user', lazy=True)
+    invitations_received = relationship('Invitation', backref='user', lazy=True)
+    #requests_sent = relationship('MembershipRequest', backref='user', lazy=True)
 
-class Group(UserMixin, db.Model):
+class Group(Base):
     __tablename__ = 'groups'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -27,11 +27,11 @@ class Group(UserMixin, db.Model):
     # Define the relationship to the User model
     owner = relationship('User', backref='groups')
 
-    #invitations_sent = db.relationship('Invitation', backref='group', lazy=True)
-    requests_received=  db.relationship('MembershipRequest', backref='user', lazy=True)
+    #invitations_sent = relationship('Invitation', backref='group', lazy=True)
+    requests_received=  relationship('MembershipRequest', backref='user', lazy=True)
 
 
-class Invitation(UserMixin, db.Model):
+class Invitation(Base):
     __tablename__ = 'invitations'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -39,7 +39,7 @@ class Invitation(UserMixin, db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     status = db.Column(db.String(10), default='pending')
 
-class MembershipRequest(UserMixin, db.Model):
+class MembershipRequest(Base):
     __tablename__ = 'membership_requests'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -47,7 +47,7 @@ class MembershipRequest(UserMixin, db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     status = db.Column(db.String(10), default='pending')
 
-class Member(UserMixin, db.Model):
+class Member(Base):
     __tablename__ = 'members'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -55,7 +55,7 @@ class Member(UserMixin, db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     
 
-class Tracks(UserMixin, db.Model):
+class Tracks(Base):
     __tablename__ = 'tracks'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -63,7 +63,7 @@ class Tracks(UserMixin, db.Model):
     track_name = db.Column(db.String(255), nullable=False)
     track_artist = db.Column(db.Integer, nullable=False)
 
-class UserTracks(UserMixin, db.Model):
+class UserTracks(Base):
     __tablename__ = 'usertracks'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -71,11 +71,10 @@ class UserTracks(UserMixin, db.Model):
     track_id = db.Column(db.Integer, db.ForeignKey('tracks.id'), nullable=False)
 
 
-class Playlist(UserMixin, db.Model):
+class Playlists(Base):
     __tablename__ = 'playlists'
     id = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     playlist_name = db.Column(db.String(100))
     num_tracks = db.Column(db.Integer)
     link = db.Column(db.String(255), default=None)
-
