@@ -193,6 +193,7 @@ def list_groups():
         response = {'success': False, 'message': 'Not a POST request'}
         return jsonify(response)
 
+"""
 @main.route('/list_user_groups',methods=['POST'])
 def list_user_groups():
     if request.method == 'POST':
@@ -217,6 +218,7 @@ def list_user_groups():
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)
 
+"""
 @main.route('/process_membership_request', methods=['POST'])
 @login_required
 def process_membership_request():
