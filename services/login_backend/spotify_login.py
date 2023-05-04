@@ -56,10 +56,10 @@ def callback():
     cache_file = open(cache_path, "r")
     str_cache = str(cache_file.read())
 
-    update_user = User(id=user_id, cache=str_cache)
+    user= User.query.filter_by(id=user_id).first()
+    user.cache =str_cache
     
     try:
-        db.session.update(update_user)
         db.session.commit()
     except:
         print("failed")
@@ -232,6 +232,20 @@ def tracks_db_entry(track_uris, track_names, track_artists, cache_path):
     os.remove(cache_path)
     return jsonify(response)
 
+
+@spotify_login.route('/check_spotify_login', methods=['POST'])
+def check_spotify_login():
+    user_id = session.get('user_id')
+
+    user= User.query.filter_by(id=user_id).first()
+
+    if user.cache =="default-cache":
+        response = {'success': True, 'message': 'Spotify login not done', 'data' : False}
+        return jsonify(response)
+
+    else:
+        response = {'success': True, 'message': 'Spotify login done', 'data' : True}
+        return jsonify(response)
 #-----------------------------------------------
 
 # CREATE PLAYLIST USING RECOMMENDED SONGS
