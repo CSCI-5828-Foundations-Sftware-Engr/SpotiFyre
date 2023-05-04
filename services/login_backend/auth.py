@@ -1,11 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Users
+from .models import User
 from . import db
 from flask_login import login_user
 
 auth = Blueprint('auth', __name__)
-
 
 @auth.route('/')
 def home():
@@ -18,7 +17,6 @@ def root():
 @auth.route('/login')
 def login():
     return render_template('login.html')
-
 
 @auth.route('/login', methods=['POST'])
 def login_post():
@@ -40,7 +38,7 @@ def login_post():
     login_user(user, remember=False)
     session['user_id'] = user.id
 
-    response = {'success': True, 'message': 'Login Successful'}
+    response = {'success': True, 'message': 'Login Successful', 'data': {'user_id': user.id}}
     return jsonify(response)
 
 
