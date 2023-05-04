@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 
 function Home(props) {
-    const [spotifyLoginStatus, setSpotifyLoginStatus] = useState(false)
+    // const [spotifyLoginStatus, setSpotifyLoginStatus] = useState(false)
 
     useEffect(() => {
         fetch('/check_spotify_login', {
@@ -13,7 +13,7 @@ function Home(props) {
           .then((data) => {
             console.log(data.message)
             console.log(data.data)
-            setSpotifyLoginStatus(data.data)
+            props.setSpotifyLoginStatus(data.data)
         })
           .catch((e) => console.log(e));
       }, []);
@@ -24,7 +24,7 @@ function Home(props) {
                 Welcome to home page!
             </h1>
             {
-                spotifyLoginStatus?
+                props.spotifyLoginStatus?
                 <>Spotify is linked!</>
                 :
                 <><Button type="button" href='//127.0.0.1/spotify-login' target="_blank" variant="success">Link Spotify</Button>{' '}</>
