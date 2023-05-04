@@ -31,17 +31,6 @@ def login():
     user_id = session.get('user_id')
     cache_path = f'.cache-{user_id}'
 
-    cache_file = open(cache_path, "r")
-    str_cache = str(cache_file.read())
-
-    update_user = User(id=user_id, cache=str_cache)
-    
-    try:
-        db.session.update(update_user)
-        db.session.commit()
-    except:
-        print("failed")
-    
     # Create a new Spotipy instance with the cache path
     sp = create_spotify_instance(cache_path)
     
@@ -54,8 +43,9 @@ def login():
 def callback():
     print('callback endpoint')
     # Get the cache path for this user
-    cache_path = f'.cache-{request.remote_addr}'
-    
+    user_id = session.get('user_id')
+    cache_path = f'.cache-{user_id}'
+
     # Create a new Spotipy instance with the cache path
     sp = create_spotify_instance(cache_path)
     
@@ -63,6 +53,19 @@ def callback():
     code = request.args.get('code')
     sp.auth_manager.get_access_token(code)
     
+    cache_file = open(cache_path, "r")
+    str_cache = str(cache_file.read())
+
+    update_user = User(id=user_id, cache=str_cache)
+    
+    try:
+        db.session.update(update_user)
+        db.session.commit()
+    except:
+        print("failed")
+    
+    # response = {'success': True, 'message': 'Spotify Linking Successful'}
+    # return jsonify(response)
     # Redirect the user to the homepage
     return redirect('/spotify_recommendation')
 
@@ -70,15 +73,16 @@ def callback():
 @spotify_login.route('/spotify_recommendation', methods=['GET'])
 def recommendations():
 
-    print('Recommendations endpoint')   
-    print(client_id, client_secret, redirect_uri) 
-    # return 'Hello from recommendations endpoint!'
+    print('Recommendations endpoint')
     # Get the cache path for this user
-    cache_path = f'.cache-{request.remote_addr}'
-    
+    user_id = session.get('user_id')
+    cache_path = f'.cache-{user_id}'
+
     # Create a new Spotipy instance with the cache path
     sp = create_spotify_instance(cache_path)
     user = sp.current_user()['id']
+
+    print('Spotify User ID', user)
 
     track_uris = []
     track_names = []
@@ -121,7 +125,7 @@ def recommendations():
         # Get recommendations based on the user's top artists
         artist_ids = [artist['id'] for artist in top_artists['items']]
 
-        while len(track_uris) < max_songs:
+        while len(artist_ids) > 0 and len(track_uris) < max_songs:
             i = artist_ids.pop(0)
                 
             limit = 5
@@ -144,35 +148,88 @@ def recommendations():
                 print(ct, track_uri, track_name, track_artist)
                 ct += 1
 
+    print('Generic Recommendation')
+
+    if len(track_uris) < max_songs:
+        # Set seed attributes for the recommendation
+        seed_artists = None
+        seed_genres = ['pop', 'hip-hop', 'rock', 'indie', 'edm']
+        seed_tracks = None
+        limit = max_songs - len(track_uris)
+        # Get track recommendations based on seed attributes
+        recommendations = sp.recommendations(seed_artists=seed_artists, seed_genres=seed_genres, seed_tracks=seed_tracks, limit=limit)
+
+        for track in recommendations['tracks']:
+                track_uri = track['uri']
+                track_name = track['name']
+                track_artist = track['artists'][0]['name']
+                # track_genres = sp.artist(sp.track(track_uri.split(':')[-1])['artists'][0]['id'])['genres']
+                
+                track_uris.append(track_uri)
+                track_names.append(track_name)
+                track_artists.append(track_artist)
+                # track_genres.append(track_genres)
+                
+                print(ct, track_uri, track_name, track_artist)
+                ct += 1
+    
     try:
-        tracks_db_entry(track_uris, track_names, track_artists)
+        tracks_db_entry(track_uris, track_names, track_artists, cache_path)
     except Exception as e:
         print(e)
+    
+    response = {'success': True, 'message': 'Spotify Linking Successful'}
+    return jsonify(response)
+    # return f"<h1>Spotify Recommendations</h1><h3>{user}<h3><ul><li>{'</li><li>'.join(track_names)}</li></ul>"
 
-    return f"<h1>Spotify Recommendations</h1><h3>{user}<h3><ul><li>{'</li><li>'.join(track_names)}</li></ul>"
-
-def tracks_db_entry(track_uris, track_names, track_artists):
+def tracks_db_entry(track_uris, track_names, track_artists, cache_path):
     print('Inside tracks_db_entry')
-    track_uri = track_uris[0]
-    track_name = track_names[0]
-    track_artist = track_artists[0]
-    
-    new_track = Tracks(track_uri=track_uri, track_name=track_name, track_artist=track_artist)
-    
-    try:
-        print('trying to add track')
-        db.session.add(new_track)
-        print('trying to commit')
-        db.session.commit()
-        print('committed successfully')
-        response = {'success': True, 'message': 'Track added successfully.', 'data' : track_uri}
-    except Exception as e:
-        print(e)
-        db.session.rollback()
-        print('Rollback complete')
-        response = {'success': False, 'message': 'Error adding track.'}
 
-    print(response)
+    for i in range(len(track_uris)):
+
+        track_uri = track_uris[i]
+        track_name = track_names[i]
+        track_artist = track_artists[i]
+        
+        # add entry in tracks table
+        trk = Tracks.query.filter_by(track_uri=track_uri).first()
+        
+        if trk is None:
+            new_track = Tracks(track_uri=track_uri, track_name=track_name, track_artist=track_artist)
+            
+            try:
+                db.session.add(new_track)
+                db.session.commit()
+                track_id = new_track.id
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+                response = {'success': False, 'message': 'Error adding track.', 'data' : track_uri}
+                print(response)
+                return jsonify(response)
+
+        else:
+            track_id = trk.id
+        
+        print('track_id', track_id)
+
+        # add entry in usertracks table
+        
+        user_id=session.get('user_id')
+        new_user_track = UserTracks(user_id=user_id, track_id=track_id)
+        
+        try:
+            db.session.add(new_user_track)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            response = {'success': False, 'message': 'Error adding track in usertracks table.', 'data' : '{track_id} {user_id}'}
+            print(response)
+            return jsonify(response)
+
+    response = {'success': True, 'message': 'Tracks added successfully.'}
+    os.remove(cache_path)
     return jsonify(response)
 
 #-----------------------------------------------
@@ -207,31 +264,3 @@ def tracks_db_entry(track_uris, track_names, track_artists):
 #     track = item['track']
 #     print(f"{idx + 1}: {track['name']} by {track['artists'][0]['name']}")
 
-#-----------------------------------------------
-
-# SHARE PLAYLIST WITH OTHER USERS (not working)
-
-# collaborators = ["31sxvmqfalwsyg232ldxxevwqaqy"]
-# for user in collaborators:
-#     # sp.user_playlist_change_details(user=user, playlist_id=playlist["id"], collaborative=True)
-#     sp.user_playlist_follow_playlist(user, playlist_id=playlist['id'])
-
-# user_id=['31sxvmqfalwsyg232ldxxevwqaqy']
-# playlist_id=playlist['id']
-# sp.user_playlist_add_followers(playlist_id=playlist['id'], user_ids=['31sxvmqfalwsyg232ldxxevwqaqy'])
-# sp.user_playlist_save(user="31sxvmqfalwsyg232ldxxevwqaqy", playlist_id=playlist['id'])
-# sp.user_playlist_add_followers(owner=sp.current_user()['id'], playlist_id=playlist['id'], user_ids=['31sxvmqfalwsyg232ldxxevwqaqy'])
-# sp.user_playlist_add_my_tracks(user_id, playlist_id)
-# sp.user_playlist_follow_playlist(user_id, playlist_id)
-# sp.playlist_add_items(playlist_id, ['spotify:user:' + '31sxvmqfalwsyg232ldxxevwqaqy'])
-# sp.playlist_add_followers(playlist_id, ['31sxvmqfalwsyg232ldxxevwqaqy'], public=False)
-# sp.playlist_change_details(playlist_id, collaborative=True, user_ids=user_id)
-# sp.playlist_add_users_collaborative(playlist_id, user_id)
-# playlist_visibility = {
-#     "public": False,
-#     "collaborative": True,
-#     "description": playlist_description,
-#     "owner_id": sp.current_user()["id"],
-#     "collaborative_users": user_id
-# }
-# sp.user_playlist_change_details(user=sp.current_user()["id"], playlist_id=playlist["id"], **playlist_visibility)

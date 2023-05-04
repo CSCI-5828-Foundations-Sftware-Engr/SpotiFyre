@@ -34,9 +34,9 @@ def create_app():
         cur.execute(
             "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar NOT NULL, email varchar NOT NULL, password varchar NOT NULL, cache varchar DEFAULT 'default-cache');")
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS Tracks (track_id serial PRIMARY KEY, track_uri varchar NOT NULL, track_name varchar NOT NULL, track_artist varchar NOT NULL);") # , track_genres varchar
+            "CREATE TABLE IF NOT EXISTS Tracks (id serial PRIMARY KEY, track_uri varchar NOT NULL, track_name varchar NOT NULL, track_artist varchar NOT NULL);") # , track_genres varchar
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS UserTracks (ut_id serial PRIMARY KEY, user_id int REFERENCES Users(id)  NOT NULL, track_id int REFERENCES Tracks(track_id) NOT NULL);")
+            "CREATE TABLE IF NOT EXISTS UserTracks (id serial PRIMARY KEY, user_id int REFERENCES Users(id)  NOT NULL, track_id int REFERENCES Tracks(id) NOT NULL);")
     except Exception as e:
         print(e)
         exit(0) 

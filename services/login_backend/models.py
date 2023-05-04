@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
 class Tracks(UserMixin, db.Model):
     __tablename__ = 'tracks'
 
-    track_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     track_uri = db.Column(db.String(100), nullable=False)
     track_name = db.Column(db.String(255), nullable=False)
     track_artist = db.Column(db.Integer, nullable=False)
@@ -21,6 +21,6 @@ class Tracks(UserMixin, db.Model):
 class UserTracks(UserMixin, db.Model):
     __tablename__ = 'usertracks'
 
-    ut_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     track_id = db.Column(db.Integer, db.ForeignKey('tracks.id'), nullable=False)

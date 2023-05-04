@@ -23,7 +23,7 @@ def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
 
-    user = Users.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
 
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
