@@ -28,4 +28,4 @@ spec:
                       - name: SPOTIPY_REDIRECT_URI
                         value: http://localhost/callback
                       - name: SPOTIFY_SCOPE
-                        value: "user-library-read user-top-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative"
+                        value: "user-read-recently-played user-library-read user-top-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative"
