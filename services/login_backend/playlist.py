@@ -41,7 +41,7 @@ def create_playlist():
         db.session.commit()
 
         # Convert the dictionary to JSON
-        json_data = json.dumps(playlist_params)
+        json_data = json.dumps({'id':playlist_params.id, "group_id" : playlist_params.group_id,"playlist_name" :playlist_params.playlist_name, "num_tracks":playlist_params.num_tracks})
 
         # Publish the JSON data to the Pub/Sub topic
         try :
