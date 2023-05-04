@@ -9,17 +9,17 @@ import json
 from utils import create_playlist
 from models import Group
 # from . import engine
-
+import os
 
 # TODO(developer)
-project_id = "polished-time-381400"
-subscription_id = "playlist-parameters-sub"
+project_id = os.getenv('PROJECT_ID', "playlist-parameters")
+subscription_id = os.getenv('SUBSCRIBER_PLAYLIST', "playlist-parameters-sub")
 # Number of seconds the subscriber should listen for messages
 timeout = 5.0
 
-data = Group(id=1)
+#data = Group(id=1)
 
-create_playlist(data)
+#create_playlist(data)
 
 subscriber = pubsub_v1.SubscriberClient()
 subscription_path = subscriber.subscription_path(project_id, subscription_id)
