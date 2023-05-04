@@ -265,6 +265,7 @@ def process_invitation():
         user_id = session.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
+        new_member=None
         if action != 'accept' and action !='reject' :
             response = {'success': False, 'message': 'Invalid action'}
             return jsonify(response)
