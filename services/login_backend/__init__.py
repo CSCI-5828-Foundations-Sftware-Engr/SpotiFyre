@@ -32,6 +32,8 @@ def create_app():
     try:
         cur.execute(
             "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar, email varchar, password varchar);")
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Members (id serial PRIMARY KEY, user_id int REFERENCES Users(id)  NOT NULL, group_id int REFERENCES Groups(id) NOT NULL);")
     except Exception as e:
         print(e)
         exit(0) 
