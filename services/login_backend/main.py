@@ -183,7 +183,7 @@ def list_groups():
                 'owner': {
                     'id': group.owner.id,
                     'username': group.owner.name
-                }
+                },
                 'isMember': isMember
             }
             group_list.append(group_data)
@@ -224,7 +224,7 @@ def process_membership_request():
         user_id = request.form.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
-        if action != 'accept' or action !='reject' :
+        if action != 'accept' and action !='reject' :
             response = {'success': False, 'message': 'Invalid action'}
             return jsonify(response)
         new_member=None
@@ -263,7 +263,7 @@ def process_invitation():
         user_id = session.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
-        if action != 'accept' or action !='reject' :
+        if action != 'accept' and action !='reject' :
             response = {'success': False, 'message': 'Invalid action'}
             return jsonify(response)
         invitation = Invitation.query.filter_by(user_id=user_id, group_id=group_id).first()
