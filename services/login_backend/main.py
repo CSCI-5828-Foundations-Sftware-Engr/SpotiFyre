@@ -158,9 +158,9 @@ def create_group():
             db.session.add(new_member)
             db.session.commit()
             response = {'success': True, 'message': 'Group created successfully.', 'data' : new_group.id}
-        except:
+        except Exception as e:
             db.session.rollback()
-            response = {'success': False, 'message': 'Error creating group.'}
+            response = {'success': False, 'message': str(e)}
     else:
         response = {'success': False, 'message': 'Not a POST request'}
     return jsonify(response)

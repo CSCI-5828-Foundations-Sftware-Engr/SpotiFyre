@@ -222,6 +222,8 @@ function Groups(props) {
                                                 <Button type='button' variant="outline-dark" size='sm' onClick={() => handleInviteClick(group.id)}>
                                                     Invite
                                                 </Button>
+                                            : group.isMember?
+                                                <>{}</>
                                             :
                                                 <Button type='button' variant="outline-dark" size='sm' onClick={() => requestGroupJoin(group.id)}>
                                                     Request
