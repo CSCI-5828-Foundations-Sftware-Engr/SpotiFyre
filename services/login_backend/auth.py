@@ -1,11 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Users
+from .models import User
 from . import db
 from flask_login import login_user
 
 auth = Blueprint('auth', __name__)
-
 
 @auth.route('/')
 def home():
@@ -19,13 +18,12 @@ def root():
 def login():
     return render_template('login.html')
 
-
 @auth.route('/login', methods=['POST'])
 def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
 
-    user = Users.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
 
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
@@ -40,9 +38,8 @@ def login_post():
     login_user(user, remember=False)
     session['user_id'] = user.id
 
-    response = {'success': True, 'message': 'Login Successful'}
+    response = {'success': True, 'message': 'Login Successful', 'data': {'user_id': user.id}}
     return jsonify(response)
-    # return redirect(url_for('main.profile'))
 
 
 @auth.route('/signup')
@@ -57,7 +54,7 @@ def signup_post():
     password = request.form.get('password')
     hashed_password = generate_password_hash(password, method='sha256')
 
-    user = Users.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
 
     if user:
         # flash('email exists', 'danger')
@@ -66,7 +63,7 @@ def signup_post():
         response = {'success': False, 'message': 'Please check your login details and try again.'}
         return jsonify(response)
 
-    new_user = Users(email=email, name=name,
+    new_user = User(email=email, name=name,
                      password=hashed_password)
     try:
         db.session.add(new_user)
@@ -76,7 +73,6 @@ def signup_post():
 
     response = {'success': True, 'message': ' Sign up successful'}
     return jsonify(response)
-    # return redirect(url_for('auth.login'))
 
 
 @auth.route('/logout')
@@ -84,4 +80,3 @@ def logout():
     session.pop('user_id', None)
     response = {'success': True, 'message': 'Logged out successfully'}
     return jsonify(response)
-    # return redirect('/')
