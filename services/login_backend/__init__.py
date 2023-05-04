@@ -32,7 +32,7 @@ def create_app():
     cur = conn.cursor()
     try:
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar NOT NULL, email varchar NOT NULL, password varchar NOT NULL, access_token varchar DEFAULT 'default-access-token');")
+            "CREATE TABLE IF NOT EXISTS Users (id serial PRIMARY KEY, name varchar NOT NULL, email varchar NOT NULL, password varchar NOT NULL, cache varchar DEFAULT 'default-cache');")
         cur.execute(
             "CREATE TABLE IF NOT EXISTS Tracks (track_id serial PRIMARY KEY, track_uri varchar NOT NULL, track_name varchar NOT NULL, track_artist varchar NOT NULL);") # , track_genres varchar
         cur.execute(

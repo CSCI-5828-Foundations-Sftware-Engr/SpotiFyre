@@ -1,7 +1,7 @@
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from flask import Flask, request, redirect, jsonify, Blueprint
+from flask import Flask, request, redirect, jsonify, Blueprint, session
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Tracks, UserTracks
 from . import db
@@ -28,7 +28,19 @@ def create_spotify_instance(cache_path):
 def login():
     print('Login endpoint')
     # Get the cache path for this user
-    cache_path = f'.cache-{request.remote_addr}'
+    user_id = session.get('user_id')
+    cache_path = f'.cache-{user_id}'
+
+    cache_file = open(cache_path, "r")
+    str_cache = str(cache_file.read())
+
+    update_user = User(id=user_id, cache=str_cache)
+    
+    try:
+        db.session.update(update_user)
+        db.session.commit()
+    except:
+        print("failed")
     
     # Create a new Spotipy instance with the cache path
     sp = create_spotify_instance(cache_path)
