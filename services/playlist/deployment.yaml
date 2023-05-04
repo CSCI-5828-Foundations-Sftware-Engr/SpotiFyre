@@ -1,26 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: login-backend
+    name: playlist
 spec:
-    replicas: 1
+    replicas: 2
     selector:
         matchLabels:
-            app: login-backend
+            app: spotifyre-playlist
     template:
         metadata:
             labels:
-                app: login-backend
+                app: spotifyre-playlist
         spec:
             containers:
-                - name: login-backend
-                  image: login-backend:latest
+                - name: spotifyre-playlist
+                  image: spotifyre-playlist:latest
                   imagePullPolicy: Never
                   ports:
                       - containerPort: 5000
+                  resources:
+                      limits:
+                          memory: "1024Mi"
+                          cpu: "1000m"
                   env:
-                      - name: SQLALCHEMY_DATABASE_URI
-                        value: postgresql://<username>:<password>@<host>/<database>
+                      - name: SUBSCRIPTION_TOPIC
+                        value: YOUR_SUBSCRIPTION_ID
+                      - name: PROJECT_ID
+                        value: YOUR_PROJECT_ID
                       - name: SPOTIPY_CLIENT_ID
                         value: 3d7af19cb8f84dcab05b9f44feab935e
                       - name: SPOTIPY_CLIENT_SECRET
