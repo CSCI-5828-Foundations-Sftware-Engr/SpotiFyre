@@ -12,7 +12,7 @@ from models import Group
 import os
 
 # TODO(developer)
-project_id = os.getenv('PROJECT_ID', "playlist-parameters")
+project_id = os.getenv('PROJECT_ID', "polished-time-381400")
 subscription_id = os.getenv('SUBSCRIBER_PLAYLIST', "playlist-parameters-sub")
 # Number of seconds the subscriber should listen for messages
 timeout = 5.0
@@ -31,7 +31,8 @@ pl_dict = {
 #create_playlist(pl_data)
 
 subscriber = pubsub_v1.SubscriberClient()
-subscription_path = subscriber.subscription_path(project_id, subscription_id)
+subscription_path = f'projects/{project_id}/subscriptions/{subscription_id}'
+# subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     print(f"Received {message.data!r}.")
