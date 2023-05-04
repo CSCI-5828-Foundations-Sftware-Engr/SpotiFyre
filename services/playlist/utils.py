@@ -3,6 +3,7 @@ from models import User, Group, Tracks, UserTracks, Playlist, Member
 from sqlalchemy.orm import sessionmaker
 from session import session
 
+import json
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -41,12 +42,12 @@ def get_all_tracks(members):
     # Get list of user_ids of all group members
     if members:
         member_ids = [member.user_id for member in members]
-    
+        print("member_ids", member_ids)
     # Get all distinct tracks for all member ids
-        all_tracks = session.query(UserTracks) \
-                        .join(Tracks, UserTracks.track_id == Tracks.track_id) \
+        all_tracks = session.query(UserTracks.user_id, UserTracks.track_id) \
+                        .join(Tracks, UserTracks.track_id == Tracks.id) \
                         .filter(UserTracks.user_id.in_(member_ids)) \
-                        .group_by(Tracks.track_id).all()
+                        .group_by(UserTracks.user_id)
         
         # Create dict of user to list of tracks
         # user_tracks = {}
@@ -57,28 +58,45 @@ def get_all_tracks(members):
 
 
 
-def create_spotify_playlist(user_id, playlist_id, name, description):
+def create_spotify_playlist(user_id, playlist_id, name):
     user = session.query(User).filter_by(id=user_id).first()
     cache_path = f"cache_{user.id}"
     f = open(cache_path, "w")
-    os.write(user.cache)
+    f.write(user.cache)
     f.close()
 
     sp = create_spotify_instance(cache_path)
     spotify_user_id = sp.current_user()['id']
-    new_playlist = sp.user_playlist_create(user=spotify_user_id, name=name, public=True, collaborative=False, description=description)
+    new_playlist = sp.user_playlist_create(user=spotify_user_id, name=name, public=True, collaborative=False, description="Enjoy!")
 
     playlist_url = new_playlist['external_urls']['spotify']
 
     # playlist = Playlist(id=playlist_id, link=playlist_url)
+    print("playlist_url", playlist_url)
 
-    session.execute(update(Playlist).where(id=playlist_id), {"link": playlist_url})
+    # pl_query = session.query(Playlist).filter(id == playlist_id).first()
+    # pl = Playlist.query.filter_by(id=playlist_id).first()
+    # pl.link = playlist_url
+
+    # update_pl_stmt = (
+    #     update(Playlist).
+    #     where(Playlist.id == playlist_id).
+    #     values(link=playlist_url)
+    # )
+
+    # session.execute(update_pl_stmt)
+    session.query(Playlist).filter(Playlist.id == playlist_id).update({'link': playlist_url})
+    
+    # pl_query.update({"link": playlist_url})
+    session.commit()
+    # session.execute(update(Playlist).where(id=playlist_id), {"link": playlist_url})
 
 
 
 def create_playlist(playlist_data):
     # 1. Get group members from playlist_data.group_id
-    group = get_group_by_id(playlist_data.id)
+    pl_data = json.loads(playlist_data)
+    group = get_group_by_id(pl_data["group_id"])
 
     members = get_group_members(group)
     # 2. Get tracks of each member of group
@@ -100,7 +118,7 @@ def create_playlist(playlist_data):
     #     "type": "string",
     #     "uri": "string"
     #     }
-    create_resp = create_spotify_playlist(group.owner_id, playlist_data.name.id, playlist_data.name, playlist_data.description)
+    create_resp = create_spotify_playlist(group.owner_id, pl_data["id"], pl_data["name"])
     
     # 5. Add 3. to 4.
     #   a. ENDPOINT:  https://api.spotify.com/v1/playlists/{playlist_id}/tracks
