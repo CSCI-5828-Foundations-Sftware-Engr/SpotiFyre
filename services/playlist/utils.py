@@ -5,6 +5,8 @@ from session import session
 
 import json
 import os
+from collections import Counter, defaultdict
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -49,14 +51,37 @@ def get_all_tracks(members, num_tracks):
                         .filter(UserTracks.user_id.in_(member_ids)).all()
                         # .group_by(UserTracks.user_id)
         
-        track_ids = set()
+        member_track_ids = defaultdict(list)
+
+        track_ids = list()
 
         for track in all_tracks:
-            track_ids.add(track.track_id)
+            track_ids.append(track.track_id)
+            member_track_ids[track.user_id].append(track.track_id)
+
+        track_ids.sort()
+        
+        track_ids_counter = Counter(track_ids)
+
+        print("track_ids_counter", track_ids_counter)
+
+        num_of_most_common = round(num_tracks / 3)
+        
+        most_common_track_ids = [ x[1] for x in track_ids_counter.most_common(num_of_most_common)]
+        user_tracks = set(most_common_track_ids)
+
+        num_of_members = len(member_track_ids.keys())
+
+        num_of_track_for_each_user = round( num_tracks / (2 * num_of_members))
         
         # Create dict of user to list of tracks
-        user_tracks = list(track_ids)
+        for user_id, track_list in member_track_ids.items():
+            for ind in range(num_of_track_for_each_user):
+                user_tracks.add(track_list[ind])
 
+        for ind in range(1, num_tracks + 1 - len(user_tracks)):
+            user_tracks.add(track_ids[-ind])
+        
         pl_tracks = session.query(Tracks).filter(Tracks.id.in_(user_tracks)).all()
 
         return pl_tracks
