@@ -12,10 +12,10 @@ from models import Group
 import os
 
 # TODO(developer)
-project_id = os.getenv('PROJECT_ID', "polished-time-381400")
+project_id = os.getenv('PROJECT_ID', "fse-new")
 subscription_id = os.getenv('SUBSCRIBER_PLAYLIST', "playlist-parameters-sub")
 # Number of seconds the subscriber should listen for messages
-timeout = 5.0
+timeout = 600
 
 #data = Group(id=1)
 

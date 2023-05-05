@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV FLASK_APP=app
 COPY . /app
-ENV GOOGLE_APPLICATION_CREDENTIALS='/app/polished-time-381400-624a44a4258d.json'
+ENV GOOGLE_APPLICATION_CREDENTIALS='/app/fse-new-faab077c290e.json'
 EXPOSE 80
 CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
 # Run the web service on container startup. Here we use the gunicorn

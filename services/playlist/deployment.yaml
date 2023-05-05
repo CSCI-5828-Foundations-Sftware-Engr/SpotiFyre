@@ -14,22 +14,14 @@ spec:
         spec:
             containers:
                 - name: spotifyre-playlist
-                  image: spotifyre-playlist:latest
-                  imagePullPolicy: Never
+                  image: tejas1812/spotifyre-playlist:v7
+                  imagePullPolicy: Always
+                  envFrom:
+                  - secretRef:
+                      name: credentials
                   ports:
                       - containerPort: 5000
                   resources:
                       limits:
                           memory: "1024Mi"
                           cpu: "1000m"
-                  env:
-                      - name: SUBSCRIPTION_TOPIC
-                        value: YOUR_SUBSCRIPTION_ID
-                      - name: SPOTIPY_CLIENT_ID
-                        value: 3d7af19cb8f84dcab05b9f44feab935e
-                      - name: SPOTIPY_CLIENT_SECRET
-                        value: e21a86202bc14a83a20f32c80e0d700b
-                      - name: SPOTIPY_REDIRECT_URI
-                        value: http://localhost/callback
-                      - name: SPOTIFY_SCOPE
-                        value: "user-library-read user-top-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative"

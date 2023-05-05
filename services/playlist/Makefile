@@ -1,5 +1,5 @@
-VERSION=v1
-DOCKERUSER=utsavag
+VERSION=v7
+DOCKERUSER=tejas1812
 
 build:
 	docker build -f Dockerfile -t spotifyre-playlist .

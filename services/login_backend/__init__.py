@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
 import psycopg2
 from flask_login import LoginManager
+from flask_cors import CORS
 import os 
 
 # init SQLAlchemy so we can use it later in our models
@@ -16,7 +17,7 @@ pqdb = os.getenv('PQ_DB', "spotifyre_db")
 def create_app():
     global app
     app = Flask(__name__)
-
+    CORS(app)
     url = f'postgresql://{user}:{passWd}@{host}:{port}/{pqdb}'
     app.config['SECRET_KEY'] = 'secret-key-goes-here'
 

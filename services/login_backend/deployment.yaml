@@ -14,18 +14,11 @@ spec:
         spec:
             containers:
                 - name: login-backend
-                  image: login-backend:latest
-                  imagePullPolicy: Never
+                  image: tejas1812/login-backend:v6
+                  imagePullPolicy: Always
+                  envFrom:
+                  - secretRef:
+                      name: credentials
                   ports:
                       - containerPort: 5000
-                  env:
-                      - name: SQLALCHEMY_DATABASE_URI
-                        value: postgresql://<username>:<password>@<host>/<database>
-                      - name: SPOTIPY_CLIENT_ID
-                        value: 3d7af19cb8f84dcab05b9f44feab935e
-                      - name: SPOTIPY_CLIENT_SECRET
-                        value: e21a86202bc14a83a20f32c80e0d700b
-                      - name: SPOTIPY_REDIRECT_URI
-                        value: http://localhost/callback
-                      - name: SPOTIFY_SCOPE
-                        value: "user-read-recently-played user-library-read user-top-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative"
+                  
