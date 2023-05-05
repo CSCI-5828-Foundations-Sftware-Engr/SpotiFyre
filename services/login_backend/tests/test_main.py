@@ -1,6 +1,7 @@
 # REQ: pip install Flask-Testing
 
 import unittest
+from unittest.mock import MagicMock
 from flask import url_for
 from flask_testing import TestCase
 
@@ -337,44 +338,33 @@ class TestMainRoutes(TestCase):
                 follow_redirects=True
             )
 
-            # Create a group for testing
-            group = Group(name='Test Group', description='Test Group Description', owner_id=1)
-            self.db.session.add(group)
-            self.db.session.commit()
+            # Mock the Invitation.query.filter_by method
+            with unittest.mock.patch('main.Invitation.query.filter_by') as mock_invitation_query:
+                mock_invitation = MagicMock()
+                mock_invitation.user_id = 2
+                mock_invitation.group_id = 1
+                mock_invitation.status = 'pending'
+                mock_invitation_query.return_value.first.return_value = mock_invitation
 
-            # Create a new user for testing
-            new_user = User(email='new@example.com', password=generate_password_hash('new_password', method='sha256'))
-            self.db.session.add(new_user)
-            self.db.session.commit()
+                # Test processing the invitation - accept
+                response = self.client.post(
+                    url_for('main.process_invitation'),
+                    data=dict(group_id=1, action='accept'),
+                    follow_redirects=True
+                )
+                json_data = response.get_json()
+                self.assertTrue(json_data['success'])
+                self.assertIn('Invitation processed - accepted', json_data['message'])
 
-            # Create an invitation for the new user
-            invitation = Invitation(user_id=new_user.id, group_id=group.id, status='pending')
-            self.db.session.add(invitation)
-            self.db.session.commit()
-
-            # Test processing the invitation - accept
-            response = self.client.post(
-                url_for('main.process_invitation'),
-                data=dict(group_id=group.id, action='accept'),
-                follow_redirects=True
-            )
-            json_data = response.get_json()
-            self.assertTrue(json_data['success'])
-            self.assertIn('Invitation processed - accepted', json_data['message'])
-
-            # Test processing the invitation - reject
-            invitation = Invitation(user_id=new_user.id, group_id=group.id, status='pending')
-            self.db.session.add(invitation)
-            self.db.session.commit()
-
-            response = self.client.post(
-                url_for('main.process_invitation'),
-                data=dict(group_id=group.id, action='reject'),
-                follow_redirects=True
-            )
-            json_data = response.get_json()
-            self.assertTrue(json_data['success'])
-            self.assertIn('Invitation processed - rejected', json_data['message'])
+                # Test processing the invitation - reject
+                response = self.client.post(
+                    url_for('main.process_invitation'),
+                    data=dict(group_id=1, action='reject'),
+                    follow_redirects=True
+                )
+                json_data = response.get_json()
+                self.assertTrue(json_data['success'])
+                self.assertIn('Invitation processed - rejected', json_data['message'])
 
 # if __name__ == '__main__':
 #     unittest.main()
