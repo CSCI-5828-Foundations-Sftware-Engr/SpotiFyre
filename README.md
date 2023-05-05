@@ -2,6 +2,14 @@
 
 *Team: Algorithmic Alliance*
 
+Contributors | Github usernames  
+--- | ---
+Chinmay Agrawal | [ch1nmay7898](https://github.com/ch1nmay7898) 
+Medha Rudra | [MedhaRudra](https://github.com/MedhaRudra), [medha-rudra](https://github.com/medha-rudra)
+Mukund Kalantri | [mukundkalantri23](https://github.com/mukundkalantri23)
+Tejas Kaushik | [tejas1812](https://github.com/tejas1812), [teka7939](https://github.com/teka7939)
+Utsav Atul Gupta | [MrUtsavG](https://github.com/MrUtsavG)
+
 Spotify Playlist creator for large groups.
 
 ## Architecture Diagram
