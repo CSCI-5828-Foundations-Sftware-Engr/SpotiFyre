@@ -1,4 +1,4 @@
-VERSION=v1
+VERSION=v6
 DOCKERUSER=tejas1812
 
 build:

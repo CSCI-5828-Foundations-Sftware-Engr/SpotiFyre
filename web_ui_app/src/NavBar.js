@@ -11,9 +11,18 @@ function NavBar(props) {
 
     const changeNavOption = (opt) => {
         if (opt === 2) {
+          if (props.spotifyLoginStatus === true) {
+            props.navOption(opt)
             props.setGroupOption(0)
+          }
+          else {
+            alert("Please link to spotify!")
+          }
         }
-        props.navOption(opt)
+        else {
+          props.navOption(opt)
+        }
+        
     };
 
     return (

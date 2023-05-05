@@ -1,24 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: login-backend
+    name: playlist
 spec:
-    replicas: 1
+    replicas: 2
     selector:
         matchLabels:
-            app: login-backend
+            app: spotifyre-playlist
     template:
         metadata:
             labels:
-                app: login-backend
+                app: spotifyre-playlist
         spec:
             containers:
-                - name: login-backend
-                  image: tejas1812/login-backend:v6
+                - name: spotifyre-playlist
+                  image: tejas1812/spotifyre-playlist:v7
                   imagePullPolicy: Always
                   envFrom:
                   - secretRef:
                       name: credentials
                   ports:
                       - containerPort: 5000
-                  
+                  resources:
+                      limits:
+                          memory: "1024Mi"
+                          cpu: "1000m"

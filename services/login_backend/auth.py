@@ -6,7 +6,6 @@ from flask_login import login_user
 
 auth = Blueprint('auth', __name__)
 
-
 @auth.route('/')
 def home():
     return render_template('home.html')
@@ -18,7 +17,6 @@ def root():
 @auth.route('/login')
 def login():
     return render_template('login.html')
-
 
 @auth.route('/login', methods=['POST'])
 def login_post():

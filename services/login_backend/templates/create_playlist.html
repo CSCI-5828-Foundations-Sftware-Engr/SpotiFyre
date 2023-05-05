@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Playlist</title>
+  <!-- Include necessary CSS and JavaScript files -->
+</head>
+<body>
+  <h1>Create Playlist</h1>
+
+  <form action="/generate_playlist" method="POST">
+    <input type="hidden" name="group-id" value="{{ group_id }}">
+    <label for="playlist-name">Playlist Name:</label>
+    <input type="text" id="playlist-name" name="playlist-name" required><br><br>
+
+    <label for="time-range">Time Range:</label>
+    <!-- Time range selection field (dropdown or custom range) -->
+    <br><br>
+
+    <label for="genre">Genre:</label>
+    <input type="text" id="genre" name="genre"><br><br>
+
+
+    <label for="num-tracks">Number of Tracks:</label>
+    <input type="number" id="num-tracks" name="num-tracks" min="1" max="100"><br><br>
+
+    <input type="submit" value="Create Playlist">
+  </form>
+</body>
+</html>

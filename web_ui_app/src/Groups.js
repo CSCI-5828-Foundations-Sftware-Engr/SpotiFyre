@@ -4,9 +4,12 @@ import Form from 'react-bootstrap/Form';
 
 function Groups(props) {
     
-    const [groupsList, setGroupsList] = useState([])
+    const [groupsList, setGroupsList] = useState(false)
     const [invitationsList, setInvitationsList] = useState([])
     const [requestsList, setRequestsList] = useState([])
+    const [generatePlaylistForm, setGeneratePlaylistForm] = useState(false)
+    const [playlistId, setPlaylistId] = useState()
+    const [playlistLink, setPlaylistLink] = useState()
 
     const createGroup = async (group_name, group_description) => {
         await fetch('/create_group', {
@@ -184,6 +187,63 @@ function Groups(props) {
           }
 
     }
+
+    const generatePlaylist = async (group_id, playlist_name, num_tracks) => {
+        await fetch('/generate_playlist', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: "group-id="+group_id+"&playlist-name="+playlist_name+"&num-tracks="+num_tracks,
+            headers: {
+               'Content-type': "application/x-www-form-urlencoded",
+            },
+         })
+            .then((response) => response.json())
+            .then((data) => {
+                 console.log(data.message)
+                 console.log(data.data)
+                 if (data.success === true) {
+                    setPlaylistId(data.data)
+                 }
+                 
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+    };
+    
+    const getPlaylistLink = async (playlist_id) => {
+        await fetch('/get_playlist_link', {
+            method: 'POST',
+            mode: 'no-cors',
+            body: "playlist_id="+playlist_id,
+            headers: {
+               'Content-type': "application/x-www-form-urlencoded",
+            },
+         })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data.message)
+                setPlaylistLink(data.data)
+                alert(data.data)
+                 
+            })
+            .catch((err) => {
+               console.log(err.message);
+            });
+    };
+
+    const handleGeneratePlaylistForm = (group) => {
+        setGroupsList(false);
+        setGeneratePlaylistForm(group);
+    }
+
+    const handlePlaylistFormSubmit = (group_id) => {
+        var {plstname, numtracks} = document.forms[0];
+        console.log(group_id, plstname.value, Number(numtracks.value));
+        generatePlaylist(group_id, plstname.value, Number(numtracks.value));
+        getPlaylistLink(playlistId);
+    }
+
     return (
         props.groupOption===1?
             <div>
@@ -219,11 +279,17 @@ function Groups(props) {
                                     
                                         {
                                             group.owner.id === Number(localStorage.getItem("user_id"))?
+                                            <div>
                                                 <Button type='button' variant="outline-dark" size='sm' onClick={() => handleInviteClick(group.id)}>
                                                     Invite
                                                 </Button>
+                                                <Button type='button' variant="outline-dark" size='sm' onClick={() => handleGeneratePlaylistForm(group)}>
+                                                    Generate Playlist
+                                                </Button>
+                                            </div>
+                                                
                                             : group.isMember?
-                                                <>{}</>
+                                                <>Already a member</>
                                             :
                                                 <Button type='button' variant="outline-dark" size='sm' onClick={() => requestGroupJoin(group.id)}>
                                                     Request
@@ -234,6 +300,26 @@ function Groups(props) {
                                 ))}
                             </ol>
                             
+                        </div>
+                    :generatePlaylistForm?
+                        <div>
+                            <h1>Generate a playlist here for your group {generatePlaylistForm.name}</h1>
+                            <Form onSubmit={() => handlePlaylistFormSubmit(generatePlaylistForm.id)} style={{ width: 500, height: 500, marginLeft: "auto", marginRight: "auto", marginTop: 100}}>
+                                <Form.Group className="mb-3" controlId="formPlaylistName">
+                                    <Form.Label>Playlist Name</Form.Label>
+                                    <Form.Control type="text" placeholder="Rock the party!" name="plstname"/>
+                                    {/* {renderErrorMessage("uname")} */}
+                                </Form.Group>
+
+                                <Form.Group className="mb-3" controlId="formTrackNum">
+                                    <Form.Label>Number of tracks</Form.Label>
+                                    <Form.Control type="number" placeholder="12" name="numtracks"/>
+                                    {/* {renderErrorMessage("pass")} */}
+                                </Form.Group>
+                                <Button variant="primary" type="submit" >
+                                    Submit
+                                </Button>
+                            </Form>
                         </div>
                     :
                         <div>
@@ -253,7 +339,7 @@ function Groups(props) {
                             <ol>
                                 {invitationsList.map((invitation) => (
                                     <>
-                                    <li key={invitation.id}>From Group ID: {invitation.group_id}</li>
+                                    <li key={invitation.id}>From user {invitation.user_name}, for group {invitation.group_name}</li>
                                     
                                     <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'accept')} variant="outline-dark" size='sm'>
                                         Accept
@@ -284,7 +370,7 @@ function Groups(props) {
                                 <ol>
                                     {requestsList.map((request) => (
                                         <>
-                                        <li key={request.id}>From User ID: {request.user_id}</li>
+                                        <li key={request.id}>From user {request.user_name}, for group {request.group_name}</li>
                                         
                                         <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'accept')} variant="outline-dark" size='sm'>
                                             Accept

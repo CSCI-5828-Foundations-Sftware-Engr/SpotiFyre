@@ -13,6 +13,7 @@ function App() {
   const [isSignedUp, setIsSignedUp] = useState(false);
   const [navToggle, setNavToggle] = useState(1);
   const [groupToggle, setGroupToggle] = useState(0)
+  const [spotifyLoginStatus, setSpotifyLoginStatus] = useState(false)
 
   useEffect(() => {
     fetch('/test', {
@@ -40,6 +41,7 @@ function App() {
               loginStatus={setIsSubmitted}
               navOption={setNavToggle}  
               setGroupOption={setGroupToggle}
+              spotifyLoginStatus={spotifyLoginStatus}
             />
           
             {
@@ -52,7 +54,10 @@ function App() {
                 </div>
               : navToggle === 1?
                 <div>
-                  <Home />
+                  <Home 
+                    spotifyLoginStatus={spotifyLoginStatus}
+                    setSpotifyLoginStatus={setSpotifyLoginStatus}
+                  />
                 </div>
               :
                 <div>
