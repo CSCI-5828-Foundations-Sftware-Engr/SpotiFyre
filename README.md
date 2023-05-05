@@ -6,7 +6,7 @@ Spotify Playlist creator for large groups.
 
 ## Architecture Diagram
 
-<img src="https://github.com/CSCI-5828-Foundations-Sftware-Engr/SpotiFyre/blob/main/images/Architecture_diagram.png?raw=true"  width="75%" height="75%">
+![Architecture Diagram](/images/Architecture_diagram.png)
 
 ## Rubric 
 
