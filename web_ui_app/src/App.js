@@ -18,7 +18,7 @@ function App() {
   useEffect(() => {
     fetch('/test', {
       method: "GET",
-      mode: "no-cors"
+      mode: "cors"
     })
       .then((response) => response.json())
       .then((message) => console.log(message.message))

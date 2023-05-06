@@ -11,13 +11,14 @@ function Groups(props) {
     const [playlistId, setPlaylistId] = useState()
     const [playlistLink, setPlaylistLink] = useState()
 
-    const createGroup = async (group_name, group_description) => {
+    const createGroup = async (group_name, group_description, user_id) => {
         await fetch('/create_group', {
            method: 'POST',
-           mode: 'no-cors',
-           body: "group_name="+group_name+"&group_description="+group_description,
+           mode: 'cors',
+           body: "group_name="+group_name+"&group_description="+group_description+"&user_id="+user_id,
            headers: {
               'Content-type': "application/x-www-form-urlencoded",
+              'Accept': 'application/json'
            },
         })
            .then((response) => response.json())
@@ -34,10 +35,14 @@ function Groups(props) {
            });
     };
 
-    const showGroups = async () => {
+    const showGroups = async (user_id) => {
         await fetch('/list_groups', {
             method: 'POST',
-            mode: 'no-cors'
+            mode: 'cors',
+            body: "user_id="+user_id,
+            headers: {
+                'Content-type': "application/x-www-form-urlencoded",
+             },
         })
         .then((response) => response.json())
         .then((data) => {
@@ -52,10 +57,14 @@ function Groups(props) {
         })
     };
 
-    const showInvitations = async () => {
+    const showInvitations = async (user_id) => {
         await fetch('/get_all_invitations', {
             method: 'POST',
-            mode: 'no-cors'
+            mode: 'cors',
+            body: "user_id="+user_id,
+            headers: {
+                'Content-type': "application/x-www-form-urlencoded",
+             },
         })
         .then((response) => response.json())
         .then((data) => {
@@ -70,10 +79,14 @@ function Groups(props) {
         })
     };
 
-    const showRequests = async () => {
+    const showRequests = async (user_id) => {
         await fetch('/get_all_membership_requests', {
             method: 'POST',
-            mode: 'no-cors'
+            mode: 'cors',
+            body: "user_id="+user_id,
+            headers: {
+                'Content-type': "application/x-www-form-urlencoded",
+             },
         })
         .then((response) => response.json())
         .then((data) => {
@@ -88,11 +101,11 @@ function Groups(props) {
         })
     };
 
-    const requestGroupJoin = async (group_id) => {
+    const requestGroupJoin = async (group_id, user_id) => {
         await fetch('/request_membership', {
             method: 'POST',
-            mode: 'no-cors',
-            body: "group_id="+group_id,
+            mode: 'cors',
+            body: "group_id="+group_id+"&user_id="+user_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },
@@ -107,11 +120,11 @@ function Groups(props) {
             });
     };
 
-    const inviteUser = async (group_id, email) => {
+    const inviteUser = async (group_id, email, user_id) => {
         await fetch('/invite_members', {
             method: 'POST',
-            mode: 'no-cors',
-            body: "group_id="+group_id+"&email="+email,
+            mode: 'cors',
+            body: "group_id="+group_id+"&email="+email+"&user_id="+user_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },
@@ -126,11 +139,11 @@ function Groups(props) {
             });
     };
 
-    const sendInviteDecision = async (group_id, action) => {
+    const sendInviteDecision = async (group_id, action, user_id, invitation_id) => {
         await fetch('/process_invitation', {
             method: 'POST',
-            mode: 'no-cors',
-            body: "group_id="+group_id+"&action="+action,
+            mode: 'cors',
+            body: "group_id="+group_id+"&action="+action+"&user_id="+user_id+"&invitation_id="+invitation_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },
@@ -146,11 +159,11 @@ function Groups(props) {
             });
     };
 
-    const sendRequestDecision = async (group_id, user_id, action) => {
+    const sendRequestDecision = async (group_id, user_id, action, request_id) => {
         await fetch('/process_membership_request', {
             method: 'POST',
-            mode: 'no-cors',
-            body: "group_id="+group_id+"&action="+action+"&user_id="+user_id,
+            mode: 'cors',
+            body: "group_id="+group_id+"&action="+action+"&user_id="+user_id+"&membership_request_id="+request_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },
@@ -170,29 +183,32 @@ function Groups(props) {
         e.preventDefault();
         
         var {grpname, grpdesc} = document.forms[0]
-        console.log(grpname.value, grpdesc.value)
-        createGroup(grpname.value, grpdesc.value);
+        var userid = localStorage.getItem('user_id')
+        console.log(grpname.value, grpdesc.value, userid)
+        createGroup(grpname.value, grpdesc.value, userid);
     };
     
     const handleInviteClick = (group_id) => {
         // e.preventDefault();
         // var email;
         var email = prompt("Invite e-mail address:", "");
+
+        var userid = localStorage.getItem("user_id");
         console.log(group_id);
         console.log(email);
         if (email == null || email == "") {
             alert("Invite cancelled");
           } else {
-            inviteUser(group_id, email);
+            inviteUser(group_id, email, userid);
           }
 
     }
 
-    const generatePlaylist = async (group_id, playlist_name, num_tracks) => {
+    const generatePlaylist = async (group_id, playlist_name, num_tracks, user_id) => {
         await fetch('/generate_playlist', {
             method: 'POST',
-            mode: 'no-cors',
-            body: "group-id="+group_id+"&playlist-name="+playlist_name+"&num-tracks="+num_tracks,
+            mode: 'cors',
+            body: "group-id="+group_id+"&playlist-name="+playlist_name+"&num-tracks="+num_tracks+"&user_id="+user_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },
@@ -211,11 +227,11 @@ function Groups(props) {
             });
     };
     
-    const getPlaylistLink = async (playlist_id) => {
+    const getPlaylistLink = async (playlist_id, user_id) => {
         await fetch('/get_playlist_link', {
             method: 'POST',
-            mode: 'no-cors',
-            body: "playlist_id="+playlist_id,
+            mode: 'cors',
+            body: "playlist_id="+playlist_id+"&user_id="+user_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },
@@ -224,8 +240,7 @@ function Groups(props) {
             .then((data) => {
                 console.log(data.message)
                 setPlaylistLink(data.data)
-                alert(data.data)
-                 
+                alert(data.data) 
             })
             .catch((err) => {
                console.log(err.message);
@@ -238,10 +253,19 @@ function Groups(props) {
     }
 
     const handlePlaylistFormSubmit = (group_id) => {
-        var {plstname, numtracks} = document.forms[0];
-        console.log(group_id, plstname.value, Number(numtracks.value));
-        generatePlaylist(group_id, plstname.value, Number(numtracks.value));
-        getPlaylistLink(playlistId);
+        // e.preventDefault();
+        // group_id.preventDefault()
+        var {plstname, numtracks, group_id} = document.forms[0];
+        var userid = localStorage.getItem("user_id")
+        console.log(group_id, plstname.value, Number(numtracks.value), userid);
+        generatePlaylist(group_id, plstname.value, Number(numtracks.value), userid);
+    }
+
+    const handleGetLink = () => {
+        console.log("get link call")
+        var userid = localStorage.getItem("user_id")
+        console.log("playlis_id: ", playlistId)
+        getPlaylistLink(playlistId, userid);
     }
 
     return (
@@ -268,7 +292,7 @@ function Groups(props) {
         : props.groupOption===2?
             <div>
                 <h1>List groups</h1>
-                <Button type="button" onClick={() => showGroups()} variant="dark">Show Groups</Button>
+                <Button type="button" onClick={() => showGroups(localStorage.getItem('user_id'))} variant="dark">Show Groups</Button>
                 {
                     groupsList?
                         <div>
@@ -286,12 +310,15 @@ function Groups(props) {
                                                 <Button type='button' variant="outline-dark" size='sm' onClick={() => handleGeneratePlaylistForm(group)}>
                                                     Generate Playlist
                                                 </Button>
+                                                <Button type='button' variant="outline-dark" size='sm' onClick={() => handleGetLink()}>
+                                                    Get playlist link
+                                                </Button>
                                             </div>
                                                 
                                             : group.isMember?
                                                 <>Already a member</>
                                             :
-                                                <Button type='button' variant="outline-dark" size='sm' onClick={() => requestGroupJoin(group.id)}>
+                                                <Button type='button' variant="outline-dark" size='sm' onClick={() => requestGroupJoin(group.id, localStorage.getItem("user_id"))}>
                                                     Request
                                                 </Button>
                                         }
@@ -304,17 +331,20 @@ function Groups(props) {
                     :generatePlaylistForm?
                         <div>
                             <h1>Generate a playlist here for your group {generatePlaylistForm.name}</h1>
+                            {/* <Button type='button' variant="outline-dark" size='sm' onClick={() => handlePlaylistFormSubmit(generatePlaylistForm.id)}>
+                                Click here to generate playlist.
+                            </Button> */}
                             <Form onSubmit={() => handlePlaylistFormSubmit(generatePlaylistForm.id)} style={{ width: 500, height: 500, marginLeft: "auto", marginRight: "auto", marginTop: 100}}>
                                 <Form.Group className="mb-3" controlId="formPlaylistName">
                                     <Form.Label>Playlist Name</Form.Label>
                                     <Form.Control type="text" placeholder="Rock the party!" name="plstname"/>
-                                    {/* {renderErrorMessage("uname")} */}
+                                    
                                 </Form.Group>
 
                                 <Form.Group className="mb-3" controlId="formTrackNum">
                                     <Form.Label>Number of tracks</Form.Label>
                                     <Form.Control type="number" placeholder="12" name="numtracks"/>
-                                    {/* {renderErrorMessage("pass")} */}
+                                    {/* <div name="group_id" value={generatePlaylistForm.id}></div> */}
                                 </Form.Group>
                                 <Button variant="primary" type="submit" >
                                     Submit
@@ -332,7 +362,7 @@ function Groups(props) {
         : props.groupOption===3?
             <div>
                 <h1>Check your group invitations here!</h1>
-                <Button type="button" onClick={() => showInvitations()} variant="dark">Show Invitations</Button>
+                <Button type="button" onClick={() => showInvitations(localStorage.getItem("user_id"))} variant="dark">Show Invitations</Button>
                 {
                     invitationsList?
                         <div>
@@ -341,10 +371,10 @@ function Groups(props) {
                                     <>
                                     <li key={invitation.id}>From user {invitation.user_name}, for group {invitation.group_name}</li>
                                     
-                                    <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'accept')} variant="outline-dark" size='sm'>
+                                    <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'accept', localStorage.getItem("user_id"), invitation.id)} variant="outline-dark" size='sm'>
                                         Accept
                                     </Button>
-                                    <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'reject')} variant="outline-dark" size='sm'>
+                                    <Button type='button' onClick={() => sendInviteDecision(invitation.group_id, 'reject', localStorage.getItem("user_id"), invitation.id)} variant="outline-dark" size='sm'>
                                         Reject
                                     </Button>
                                     
@@ -363,7 +393,7 @@ function Groups(props) {
         : props.groupOption===4?
                 <div>
                     <h1>Manage your group requests here!</h1>
-                    <Button type="button" onClick={() => showRequests()} variant="dark">Show Requests</Button>
+                    <Button type="button" onClick={() => showRequests(localStorage.getItem("user_id"))} variant="dark">Show Requests</Button>
                     {
                         requestsList?
                             <div>
@@ -372,10 +402,10 @@ function Groups(props) {
                                         <>
                                         <li key={request.id}>From user {request.user_name}, for group {request.group_name}</li>
                                         
-                                        <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'accept')} variant="outline-dark" size='sm'>
+                                        <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'accept', request.id)} variant="outline-dark" size='sm'>
                                             Accept
                                         </Button>
-                                        <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'reject')} variant="outline-dark" size='sm'>
+                                        <Button type='button' onClick={() => sendRequestDecision(request.group_id, request.user_id, 'reject', request.id)} variant="outline-dark" size='sm'>
                                             Reject
                                         </Button>
                                         

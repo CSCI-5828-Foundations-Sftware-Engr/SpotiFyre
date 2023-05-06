@@ -3,13 +3,12 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
 function LoginForm(props) {
-    const [errorMessages, setErrorMessages] = useState({});
 
-    const validateUser = async (email, password) => {
+    const validateUser = async (email, password, userid) => {
         await fetch('/login', {
            method: 'POST',
-           mode: 'no-cors',
-           body: "email="+email+"&password="+password,
+           mode: 'cors',
+           body: "email="+email+"&password="+password+"&user_id="+userid,
            headers: {
               'Content-type': "application/x-www-form-urlencoded",
            },
@@ -33,8 +32,9 @@ function LoginForm(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         var {uname, pass} = document.forms[0]
-        console.log(uname.value, pass.value)
-        validateUser(uname.value, pass.value);
+        var userid = localStorage.getItem("user_id")
+        console.log(uname.value, pass.value, userid)
+        validateUser(uname.value, pass.value, userid);
     };   
 
     const handleLogin = () => props.registrationStatus(false);
