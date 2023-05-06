@@ -12,7 +12,7 @@ function Groups(props) {
     const [playlistLink, setPlaylistLink] = useState()
 
     const createGroup = async (group_name, group_description, user_id) => {
-        await fetch('http://35.222.7.52/create_group', {
+        await fetch('/create_group', {
            method: 'POST',
            mode: 'cors',
            body: "group_name="+group_name+"&group_description="+group_description+"&user_id="+user_id,
@@ -36,7 +36,7 @@ function Groups(props) {
     };
 
     const showGroups = async (user_id) => {
-        await fetch('http://35.222.7.52/list_groups', {
+        await fetch('/list_groups', {
             method: 'POST',
             mode: 'cors',
             body: "user_id="+user_id,
@@ -58,7 +58,7 @@ function Groups(props) {
     };
 
     const showInvitations = async (user_id) => {
-        await fetch('http://35.222.7.52/get_all_invitations', {
+        await fetch('/get_all_invitations', {
             method: 'POST',
             mode: 'cors',
             body: "user_id="+user_id,
@@ -80,7 +80,7 @@ function Groups(props) {
     };
 
     const showRequests = async (user_id) => {
-        await fetch('http://35.222.7.52/get_all_membership_requests', {
+        await fetch('/get_all_membership_requests', {
             method: 'POST',
             mode: 'cors',
             body: "user_id="+user_id,
@@ -102,7 +102,7 @@ function Groups(props) {
     };
 
     const requestGroupJoin = async (group_id, user_id) => {
-        await fetch('http://35.222.7.52/request_membership', {
+        await fetch('/request_membership', {
             method: 'POST',
             mode: 'cors',
             body: "group_id="+group_id+"&user_id="+user_id,
@@ -121,7 +121,7 @@ function Groups(props) {
     };
 
     const inviteUser = async (group_id, email, user_id) => {
-        await fetch('http://35.222.7.52/invite_members', {
+        await fetch('/invite_members', {
             method: 'POST',
             mode: 'cors',
             body: "group_id="+group_id+"&email="+email+"&user_id="+user_id,
@@ -140,7 +140,7 @@ function Groups(props) {
     };
 
     const sendInviteDecision = async (group_id, action, user_id, invitation_id) => {
-        await fetch('http://35.222.7.52/process_invitation', {
+        await fetch('/process_invitation', {
             method: 'POST',
             mode: 'cors',
             body: "group_id="+group_id+"&action="+action+"&user_id="+user_id+"&invitation_id="+invitation_id,
@@ -160,7 +160,7 @@ function Groups(props) {
     };
 
     const sendRequestDecision = async (group_id, user_id, action, request_id) => {
-        await fetch('http://35.222.7.52/process_membership_request', {
+        await fetch('/process_membership_request', {
             method: 'POST',
             mode: 'cors',
             body: "group_id="+group_id+"&action="+action+"&user_id="+user_id+"&membership_request_id="+request_id,
@@ -205,7 +205,7 @@ function Groups(props) {
     }
 
     const generatePlaylist = async (group_id, playlist_name, num_tracks, user_id) => {
-        await fetch('http://35.222.7.52/generate_playlist', {
+        await fetch('/generate_playlist', {
             method: 'POST',
             mode: 'cors',
             body: "group-id="+group_id+"&playlist-name="+playlist_name+"&num-tracks="+num_tracks+"&user_id="+user_id,
@@ -228,10 +228,10 @@ function Groups(props) {
     };
     
     const getPlaylistLink = async (playlist_id, user_id) => {
-        await fetch('http://35.222.7.52/get_playlist_link', {
+        await fetch('/get_playlist_link', {
             method: 'POST',
             mode: 'cors',
-            body: "playlist_id="+2+"&user_id="+user_id,
+            body: "playlist_id="+playlist_id+"&user_id="+user_id,
             headers: {
                'Content-type': "application/x-www-form-urlencoded",
             },

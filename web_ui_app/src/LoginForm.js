@@ -3,10 +3,9 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
 function LoginForm(props) {
-    const [errorMessages, setErrorMessages] = useState({});
 
     const validateUser = async (email, password, userid) => {
-        await fetch('http://35.222.7.52/login', {
+        await fetch('/login', {
            method: 'POST',
            mode: 'cors',
            body: "email="+email+"&password="+password+"&user_id="+userid,

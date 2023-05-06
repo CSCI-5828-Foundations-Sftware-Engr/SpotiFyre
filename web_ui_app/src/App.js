@@ -16,7 +16,7 @@ function App() {
   const [spotifyLoginStatus, setSpotifyLoginStatus] = useState(false)
 
   useEffect(() => {
-    fetch('http://35.222.7.52/test', {
+    fetch('/test', {
       method: "GET",
       mode: "cors"
     })

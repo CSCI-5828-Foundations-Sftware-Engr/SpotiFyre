@@ -6,7 +6,7 @@ function SignUp(props) {
     const [errorMessages, setErrorMessages] = useState({});
 
     const addUser = async (name, email, password) => {
-        await fetch('http://35.222.7.52/signup', {
+        await fetch('/signup', {
            method: 'POST',
            mode: 'cors',
            body: "name="+name+"&email="+email+"&password="+password,
