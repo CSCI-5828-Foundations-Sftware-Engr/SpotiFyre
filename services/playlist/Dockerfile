@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # ENV FLASK_APP=app
 COPY . /playlist
-ENV GOOGLE_APPLICATION_CREDENTIALS='/playlist/fse-new-faab077c290e.json'
+ENV GOOGLE_APPLICATION_CREDENTIALS=
 
 WORKDIR /playlist
 

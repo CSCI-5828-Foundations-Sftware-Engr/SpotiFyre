@@ -1,8 +1,6 @@
 import json
 from flask import Flask, render_template, request, redirect, session, Blueprint, jsonify
-from flask_login import login_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Playlist
 from . import db
 from google.cloud import pubsub_v1
@@ -17,11 +15,9 @@ topic_name = os.getenv('TOPIC_PLAYLIST', "playlist-parameters")
 @playlist.route('/generate_playlist', methods=['GET', 'POST'])
 def create_playlist():
     if request.method == 'POST':
+        user_id = request.form.get('user_id')
         group_id = int(request.form['group-id'])
         playlist_name = request.form['playlist-name']
-        # time_range = request.form['time-range']
-        # genre = request.form['genre']
-        # tags = request.form['tags']
         num_tracks = int(request.form['num-tracks'])
 
         # Generate the playlist based on the form input
@@ -30,9 +26,6 @@ def create_playlist():
         playlist_params = Playlist(
             group_id=group_id,
             playlist_name=playlist_name,
-            # time_range=time_range,
-            # genre=genre,
-            #tags=tags,
             num_tracks=num_tracks,
         )
 
@@ -54,8 +47,6 @@ def create_playlist():
             response = {'success': True, 'message': 'Playlist record created', 'data' : playlist_params.id}
             return jsonify(response)
 
-            # Need to decide if the frontend calls get_playlist_link or if it's called here
-
         except  Exception as e:
             print("Failed to publish", e )
             response = {'success': False, 'message': 'Could not create the playlist. Try again'}
@@ -65,10 +56,10 @@ def create_playlist():
 @playlist.route('/get_playlist_link', methods=['GET', 'POST'])
 def get_playlist_link():
     playlist_id = request.form.get('playlist_id')
-
+    user_id = request.form.get('user_id')
+    
     # Query the Playlist table for the link based on the group_id
     playlist = Playlist.query.filter_by(id=playlist_id).first()
-
     if playlist is None or playlist.link is None:
         response = {'success': False, 'message': 'Link not present'}
         return jsonify(response)

@@ -27,7 +27,7 @@ global:
     auth:
       postgresPassword: ""
       username: "root"
-      password: "algo123"
+      password: ""
       database: "spotifyre_db"
       existingSecret: ""
       secretKeys:

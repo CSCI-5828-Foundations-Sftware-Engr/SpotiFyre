@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import Flask,  request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
 import psycopg2
 from flask_login import LoginManager
+from flask_session import Session
 from flask_cors import CORS
 import os 
 
@@ -17,6 +18,9 @@ pqdb = os.getenv('PQ_DB', "spotifyre_db")
 def create_app():
     global app
     app = Flask(__name__)
+    app.config["SESSION_PERMANENT"] = False
+    app.config["SESSION_TYPE"] = "filesystem"
+    Session(app)
     CORS(app)
     url = f'postgresql://{user}:{passWd}@{host}:{port}/{pqdb}'
     app.config['SECRET_KEY'] = 'secret-key-goes-here'

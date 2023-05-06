@@ -14,7 +14,7 @@ spec:
         spec:
             containers:
                 - name: spotifyre-playlist
-                  image: tejas1812/spotifyre-playlist:v8
+                  image: 
                   imagePullPolicy: Always
                   envFrom:
                   - secretRef:

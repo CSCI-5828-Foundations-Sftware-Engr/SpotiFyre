@@ -13,8 +13,6 @@ client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
 redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
 scope = os.getenv('SPOTIFY_SCOPE')
 
-print(client_id, client_secret, redirect_uri, scope)
-
 # Create a Spotipy instance with a new cache path for each user
 def create_spotify_instance(cache_path):
     return spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
@@ -72,17 +70,15 @@ def callback():
 # Endpoint for getting Spotify recommendations for the authenticated user
 @spotify_login.route('/spotify_recommendation', methods=['GET'])
 def recommendations():
-
+    user_id = session.get('user_id')
     print('Recommendations endpoint')
     # Get the cache path for this user
-    user_id = session.get('user_id')
+
     cache_path = f'.cache-{user_id}'
 
     # Create a new Spotipy instance with the cache path
     sp = create_spotify_instance(cache_path)
     user = sp.current_user()['id']
-
-    print('Spotify User ID', user)
 
     track_uris = []
     track_names = []
@@ -182,6 +178,7 @@ def recommendations():
     return jsonify(response)
     # return f"<h1>Spotify Recommendations</h1><h3>{user}<h3><ul><li>{'</li><li>'.join(track_names)}</li></ul>"
 
+
 def tracks_db_entry(track_uris, track_names, track_artists, cache_path):
     print('Inside tracks_db_entry')
 
@@ -215,7 +212,7 @@ def tracks_db_entry(track_uris, track_names, track_artists, cache_path):
 
         # add entry in usertracks table
         
-        user_id=session.get('user_id')
+        user_id = session.get('user_id')
         new_user_track = UserTracks(user_id=user_id, track_id=track_id)
         
         try:
@@ -235,7 +232,9 @@ def tracks_db_entry(track_uris, track_names, track_artists, cache_path):
 
 @spotify_login.route('/check_spotify_login', methods=['POST'])
 def check_spotify_login():
-    user_id = session.get('user_id')
+    user_id = request.form.get('user_id')
+
+    session['user_id'] =user_id
 
     user= User.query.filter_by(id=user_id).first()
 
@@ -246,35 +245,5 @@ def check_spotify_login():
     else:
         response = {'success': True, 'message': 'Spotify login done', 'data' : True}
         return jsonify(response)
-#-----------------------------------------------
 
-# CREATE PLAYLIST USING RECOMMENDED SONGS
-
-# playlist_name = 'Trial Playlist'
-# playlist_description = 'Playlist of recommended songs from SpotiFyre App'
-# playlist = sp.user_playlist_create(user=sp.current_user()["id"], name=playlist_name, public=False, collaborative=True, description=playlist_description)
-
-# # Get the list of recommended tracks
-# tracks = [track['uri'] for track in recommendations['tracks']]
-
-# # Add the recommended tracks to the new playlist
-# sp.user_playlist_add_tracks(user=sp.current_user()['id'], playlist_id=playlist['id'], tracks=tracks[:100])
-
-#-----------------------------------------------
-
-# GET RECOMMENDED SONGS BY TOP ARTISTS AND GENRES
-
-# recommendations = sp.recommendations(seed_artists=[artist['id'] for artist in top_artists['items']], seed_genres=[preferred_genre], limit=20)
-
-#-----------------------------------------------
-
-# GET LISTENING HISTORY
-
-# # Get the user's recently played tracks
-# results = sp.current_user_recently_played(limit=50)
-
-# # Print the track details
-# for idx, item in enumerate(results['items']):
-#     track = item['track']
-#     print(f"{idx + 1}: {track['name']} by {track['artists'][0]['name']}")
 

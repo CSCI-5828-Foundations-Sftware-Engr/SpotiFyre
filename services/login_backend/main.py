@@ -1,16 +1,14 @@
 from flask import Flask, render_template, request, redirect, session, Blueprint, flash, jsonify
-from flask_login import login_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 
 from .models import User, Group, Invitation, MembershipRequest, Member
 from . import db
-
+from flask_session import Session
 main = Blueprint('main', __name__)
 
 @main.route('/profile')
 def profile():
-    user_id = session.get('user_id')
+    user_id = request.form.get('user_id')
     if not user_id:
         return redirect('/login')
 
@@ -21,9 +19,9 @@ def profile():
     return render_template('profile.html', user=user)
 
 @main.route('/invite_members', methods=['POST'])
-@login_required
 def invite_members():
     if request.method == 'POST':
+        user_id = request.form.get('user_id')
         group_id = request.form.get('group_id')
         email = request.form.get('email')
 
@@ -32,12 +30,6 @@ def invite_members():
         if invited_user:
             group = Group.query.get(group_id)
 
-            # Check if the invited member is already part of the group
-            # if invited_user in group.members:
-            #     response = {'success': False, 'message': 'Member is already part of the group'}
-            #     flash('Member is already part of the group', 'info')
-            # else:
-                # Check if the invitation already exists
             invitation = Invitation.query.filter_by(group_id=group_id, user_id=invited_user.id).first()
             if invitation:
                 response = {'success': False, 'message': 'Invitation already sent'}
@@ -47,11 +39,11 @@ def invite_members():
                 db.session.add(new_invitation)
                 db.session.commit()
 
-                response = {'success': True, 'message': 'Invitation sent successfully'}
+                response = {'success': True, 'message': 'Invitation sent successfully', 'data': new_invitation.id}
 
                 # Update the invited member's profile with the invitation
                 invited_user.invitations_received.append(new_invitation)
-                # group.invitations_sent.append(new_invitation)
+
                 db.session.commit()
 
         else:
@@ -61,19 +53,13 @@ def invite_members():
     return jsonify(response)
 
 @main.route('/request_membership', methods=['POST'])
-@login_required
 def request_membership():
     if request.method == 'POST':
+        user_id = request.form.get('user_id')
         group_id = request.form.get('group_id')
-        user_id = session.get('user_id')
 
         group = Group.query.get(group_id)
 
-        # Check if the user is already a member of the group
-        # if user in group.members:
-        #     response = {'success': False, 'message': 'Member is already part of the group'}
-        # else:
-            # Check if a membership request already exists
         membership_request = MembershipRequest.query.filter_by(group_id=group_id, user_id=user_id).first()
         if membership_request:
             response = {'success': False, 'message': 'Membership request already sent'}
@@ -82,10 +68,9 @@ def request_membership():
             new_membership_request = MembershipRequest(user_id=user_id, group_id=group_id)
             db.session.add(new_membership_request)
             db.session.commit()
-            response = {'success': True, 'message': 'Membership request sent successfully'}
+            response = {'success': True, 'message': 'Membership request sent successfully', 'data' : new_membership_request.id}
 
-            # Update the group's profile with the invitation
-            # invited_user.invitations_received.append(new_invitation)
+            # Update the group's profile with the invitationn)
             group.requests_received.append(new_membership_request)
             db.session.commit()
     else:
@@ -93,10 +78,9 @@ def request_membership():
     return jsonify(response)
 
 @main.route('/get_all_invitations', methods=['POST'])
-@login_required
 def get_all_invitations():
     if request.method == 'POST':
-        user_id = session.get('user_id')
+        user_id = request.form.get('user_id')
         invitation_list = []
         try:
             invitations = Invitation.query.filter_by(user_id=user_id, status='pending')
@@ -118,11 +102,9 @@ def get_all_invitations():
     return jsonify(response)
 
 @main.route('/get_all_membership_requests', methods=['POST'])
-@login_required
 def get_all_membership_requests():
     if request.method == 'POST':
-        user_id = session.get('user_id')
-
+        user_id = request.form.get('user_id')
         groups = Group.query.filter_by(owner_id=user_id)
         membership_request_list = []
         try:
@@ -131,10 +113,11 @@ def get_all_membership_requests():
 
                 membership_requests = MembershipRequest.query.filter_by(group_id=group.id, status='pending')
                 for membership_request in membership_requests:
+                    u_id=Group.query.filter_by(id=membership_request.group_id).first().owner_id
                     membership_request_data = {
                         'id': membership_request.id,
-                        'user_id': membership_request.user_id,
-                        'user_name': User.query.filter_by(id=membership_request.user_id).first().name,
+                        'user_id': u_id,
+                        'user_name': User.query.filter_by(id=u_id).first().name,
                         'group_id': membership_request.group_id,
                         'group_name': Group.query.filter_by(id=membership_request.group_id).first().name,
                         'status': membership_request.status
@@ -148,12 +131,11 @@ def get_all_membership_requests():
     return jsonify(response)
 
 @main.route('/create_group', methods=['GET', 'POST'])
-@login_required
 def create_group():
     if request.method == 'POST':
         name = request.form['group_name']
         description = request.form['group_description']
-        user_id = session.get('user_id')
+        user_id = request.form.get('user_id')
         user = User.query.get(user_id)
         message=''
         # Create a new group instance
@@ -186,7 +168,7 @@ def create_group():
 @main.route('/list_groups',methods=['POST'])
 def list_groups():
     if request.method == 'POST':
-        user_id = session.get('user_id')
+        user_id = request.form.get('user_id')
         groups = Group.query.all()
         group_list = []
         for group in groups:
@@ -212,51 +194,25 @@ def list_groups():
         response = {'success': False, 'message': 'Not a POST request'}
         return jsonify(response)
 
-"""
-@main.route('/list_user_groups',methods=['POST'])
-def list_user_groups():
-    if request.method == 'POST':
-        user_id = session.get('user_id')
-        member_records = Member.query.filter_by(user_id=user_id)
-        group_list = []
-        for member_record in member_records:
-            Group.query.filter_by(group_id=member_recordgroup_id, user_id=user_id).first()
-            group_data = {
-                'id': group.id,
-                'name': group.name,
-                'description': group.description,
-                'owner': {
-                    'id': group.owner.id,
-                    'username': group.owner.name
-                }
-            }
-            group_list.append(group_data)
-
-        return jsonify({'success': True, 'message': 'Group list sent successfully.','data': group_list})
-    else:
-        response = {'success': False, 'message': 'Not a POST request'}
-    return jsonify(response)
-
-"""
 @main.route('/process_membership_request', methods=['POST'])
-@login_required
 def process_membership_request():
     if request.method == 'POST':
-        user_id = request.form.get('user_id')
+        membership_request_id = request.form.get('membership_request_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
         if action != 'accept' and action !='reject' :
             response = {'success': False, 'message': 'Invalid action'}
             return jsonify(response)
         new_member=None
-        membership_request = MembershipRequest.query.filter_by(user_id=user_id, group_id=group_id).first()
+        membership_request = MembershipRequest.query.filter_by(id=membership_request_id).first()
         if membership_request:
             if action == 'accept':
                 membership_request.status = 'accepted'
-                if Member.query.filter_by(user_id=user_id, group_id=group_id) :
-                    new_member = Member(user_id=user_id, group_id=group_id)
+                if not Member.query.filter_by(user_id=membership_request.user_id, group_id=group_id) :
+                    new_member = Member(user_id=membership_request.user_id, group_id=group_id)
                 status =  'accepted'
             else:
+                # For future use
                 membership_request.status = 'rejected'
                 status = 'rejected'
 
@@ -279,17 +235,17 @@ def process_membership_request():
     return jsonify(response)
 
 @main.route('/process_invitation', methods=['POST'])
-@login_required
 def process_invitation():
     if request.method == 'POST':
-        user_id = session.get('user_id')
+        invitation_id = request.form.get('invitation_id')
+        user_id = request.form.get('user_id')
         group_id = request.form.get('group_id')
         action = request.form.get('action')
         new_member=None
         if action != 'accept' and action !='reject' :
             response = {'success': False, 'message': 'Invalid action'}
             return jsonify(response)
-        invitation = Invitation.query.filter_by(user_id=user_id, group_id=group_id).first()
+        invitation = Invitation.query.filter_by(id=invitation_id).first()
         if invitation:
             if action == 'accept':
                 invitation.status = 'accepted'

@@ -8,12 +8,11 @@ from sqlalchemy.orm import sessionmaker
 import json
 from utils import create_playlist
 from models import Group
-# from . import engine
 import os
 
-# TODO(developer)
-project_id = os.getenv('PROJECT_ID', "fse-new")
-subscription_id = os.getenv('SUBSCRIBER_PLAYLIST', "playlist-parameters-sub")
+project_id = os.getenv('PROJECT_ID')
+subscription_id = os.getenv('SUBSCRIBER_PLAYLIST')
+
 # Number of seconds the subscriber should listen for messages
 timeout = 600
 
@@ -26,19 +25,14 @@ pl_dict = {
     "num_tracks": 80
 }
 
-#pl_data = json.dumps(pl_dict)
-
-#create_playlist(pl_data)
 
 subscriber = pubsub_v1.SubscriberClient()
 subscription_path = f'projects/{project_id}/subscriptions/{subscription_id}'
-# subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
 
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-    print(f"Received {message.data!r}.")
 
-     # Test the data coming in.
-    # data = json.loads(message.data)
+    print(f"Received {message.data!r}.")
 
     if message.attributes:
         print("Attributes:")

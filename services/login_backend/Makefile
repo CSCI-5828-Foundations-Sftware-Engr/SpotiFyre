@@ -1,5 +1,5 @@
-VERSION=v9
-DOCKERUSER=tejas1812
+VERSION=
+DOCKERUSER=
 
 build:
 	docker build -f Dockerfile -t login-backend .

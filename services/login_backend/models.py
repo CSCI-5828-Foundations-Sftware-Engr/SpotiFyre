@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     cache = db.Column(db.String(100), unique=True, default='default-cache')
 
     invitations_received = db.relationship('Invitation', backref='user', lazy=True)
-    #requests_sent = db.relationship('MembershipRequest', backref='user', lazy=True)
+
 
 class Group(UserMixin, db.Model):
     __tablename__ = 'groups'
@@ -27,7 +27,6 @@ class Group(UserMixin, db.Model):
     # Define the relationship to the User model
     owner = relationship('User', backref='groups')
 
-    #invitations_sent = db.relationship('Invitation', backref='group', lazy=True)
     requests_received=  db.relationship('MembershipRequest', backref='user', lazy=True)
 
 

@@ -1,16 +1,16 @@
 VERSION=v1
-DOCKERUSER=us-west3-docker.pkg.dev/fse-new/spotifyre
+DOCKERUSER=
 TOPIC_PLAYLIST=playlist-parameters
 SUBSCRIBER_PLAYLIST=playlist-parameters-sub
 DEAD_LETTER_TOPIC=dead-letter-playlist-parameters
 DEAD_LETTER_SUB=dead-letter-playlist-parameters-sub
 CLUSTER=autopilot-cluster-1
 ZONE=us-central1
-PROJECT_ID=fse-new
-BUCKET=spotifyre_bucket
+PROJECT_ID=
+BUCKET=
 PROJECT_NUMBER=$(shell gcloud projects list --filter="project_id:$(PROJECT_ID)" --format='value(project_number)')
 SERVICE_ACCOUNT=$(shell gsutil kms serviceaccount -p $(PROJECT_NUMBER))
-#PUBSUB_SERVICE_ACCOUNT="service-polished-time-381400@gcp-sa-pubsub.iam.gserviceaccount.com"
+
 
 login:
 	gcloud auth login && gcloud config set project $(PROJECT_ID)
@@ -18,9 +18,7 @@ login:
 helm:
 	helm install postgres-db infra/postgresql
 
-# Don't use this for now
 build-services:
-# cd services/frontend && gcloud builds submit --tag $(DOCKERUSER)/frontend .
 	cd services/login_backend && gcloud builds submit --tag $(DOCKERUSER)/login-backend:latest  .
 	cd services/playlist && gcloud builds submit --tag $(DOCKERUSER)/spotifyre-playlist:latest .
 

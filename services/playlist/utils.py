@@ -27,8 +27,7 @@ def get_group_by_id(group_id):
     group = session.query(Group).filter_by(id = group_id).first()
 
     if group is not None:
-        # for member in group.members:
-        #     print(member.name)
+
         print("group found", group)
         return group
     else:
@@ -49,7 +48,6 @@ def get_all_tracks(members, num_tracks):
         all_tracks = session.query(UserTracks.user_id, UserTracks.track_id) \
                         .join(Tracks, UserTracks.track_id == Tracks.id) \
                         .filter(UserTracks.user_id.in_(member_ids)).all()
-                        # .group_by(UserTracks.user_id)
         
         member_track_ids = defaultdict(list)
 
@@ -136,30 +134,19 @@ def add_tracks(user_id, tracks, playlist):
 
 
 def create_playlist(playlist_data):
-    # 1. Get group members from playlist_data.group_id
+    #  Get group members from playlist_data.group_id
     pl_data = json.loads(playlist_data)
     group = get_group_by_id(pl_data["group_id"])
 
     members = get_group_members(group)
-    # 2. Get tracks of each member of group
+    
+    #  Get tracks of each member of group
     all_tracks = get_all_tracks(members, pl_data["num_tracks"])
     print(all_tracks)
-    # 3. Create a list of tracks of length playlist_data.num_tracks from all the tracks for each member
+    
+    #  Create a list of tracks of length playlist_data.num_tracks from all the tracks for each member
     playlist_tracks = get_playlist_tracks(all_tracks, pl_data["num_tracks"])
 
-    # 4. Create playlist (empty initially)
-    #   a. ENDPOINT:  https://api.spotify.com/v1/users/{user_id}/playlists
-    #   b. Req body: name, description, public
-    #   c. Response will contain {
-    #     "external_urls": {
-    #         "spotify": "string"
-    #     },
-    #     "href": "string",
-    #     "id": "string",
-    #     "name": "string",
-    #     "type": "string",
-    #     "uri": "string"
-    #     }
     create_resp = create_spotify_playlist(group.owner_id, pl_data["id"], pl_data["playlist_name"])
 
     print(create_resp)
@@ -168,16 +155,3 @@ def create_playlist(playlist_data):
 
     print(add_resp)
     
-    # 5. Add 3. to 4.
-    #   a. ENDPOINT:  https://api.spotify.com/v1/playlists/{playlist_id}/tracks
-    #   b. Req body: {"uris": ["string"],"position": 0}
-    #   c. Response: {"snapshot_id": "abc"}
-    
-    
-    # 6. Update playlist_data.link with the playlist.external_urls.spotify url string.
-    
-    
-    # 7. return success
-
-
-    # group_id, id, playlist_name, num_tracks
