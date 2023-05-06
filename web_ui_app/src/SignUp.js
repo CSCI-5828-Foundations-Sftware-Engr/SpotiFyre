@@ -5,26 +5,10 @@ import Form from 'react-bootstrap/Form';
 function SignUp(props) {
     const [errorMessages, setErrorMessages] = useState({});
 
-    // const database = [
-    //     {
-    //         username: "user1",
-    //         password: "pass1"
-    //     },
-    //     {
-    //         username: "user2",
-    //         password: "pass2"
-    //     }
-    //     ];
-
-    // const errors = {
-    //     uname: "invalid username",
-    //     pass: "invalid password"
-    // };
-
     const addUser = async (name, email, password) => {
-        await fetch('/signup', {
+        await fetch('http://35.222.7.52/signup', {
            method: 'POST',
-           mode: 'no-cors',
+           mode: 'cors',
            body: "name="+name+"&email="+email+"&password="+password,
            headers: {
               'Content-type': "application/x-www-form-urlencoded",
