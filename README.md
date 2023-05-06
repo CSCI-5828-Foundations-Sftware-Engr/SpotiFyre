@@ -12,6 +12,8 @@ Utsav Atul Gupta | [MrUtsavG](https://github.com/MrUtsavG)
 
 Spotify Playlist creator for large groups.
 
+Demo Video: [Link](https://cuboulder.zoom.us/rec/share/muq3Ob7HjhebfACosuPsMVUB0Vttgc8HMzUNgfpMOYXztzxcE2I65NdqvYnGgdhl.bDYrYYYP8uYbrt4L)
+
 ## Architecture Diagram
 
 ![Architecture Diagram](/images/Architecture_diagram.png)
